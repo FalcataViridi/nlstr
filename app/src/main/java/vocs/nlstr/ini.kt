@@ -13,6 +13,7 @@ import android.widget.ToggleButton
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.afollestad.materialdialogs.MaterialDialog
+import timber.log.Timber
 
 class ini : AppCompatActivity(),RecognitionListener {
 
@@ -49,14 +50,12 @@ class ini : AppCompatActivity(),RecognitionListener {
             btnTglSpeech.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) startRecognition()
                 else stopRecognition()
-
             }
         } else MaterialDialog.Builder(this)
                 .title("RECON NO DISPONIBLE")
-                .content("RECON NO SOPORTADO")
+                .content("RECON NO SOPORTADO!!")
                 .positiveText(android.R.string.ok)
                 .show()
-
     }
 
     //------------METODOS---------------------//
@@ -82,15 +81,23 @@ class ini : AppCompatActivity(),RecognitionListener {
     }
 
     override fun onBeginningOfSpeech() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        barPrgSpeech.isIndeterminate = false
+
+        Timber.i(this.localClassName +" - onBeginningOfSpeech")
     }
 
     override fun onEndOfSpeech() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        barPrgSpeech.isIndeterminate = true
+
+        Timber.i(this.localClassName +" - onEndOfSpeech")
     }
 
-    override fun onError(p0: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onError(errorCode: Int) {
+
+        val errorMessage = getErrorText(errorCode)
+        Timber.d("FAILED %s", errorMessage)
+        txtMulSpeech.text = errorMessage
+        btnTglSpeech.isChecked = false
     }
 
     override fun onResults(p0: Bundle?) {
@@ -119,6 +126,21 @@ class ini : AppCompatActivity(),RecognitionListener {
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
         return recognizerIntent
+    }
+
+    private fun getErrorText(errorCode: Int): String {
+        when (errorCode) {
+            SpeechRecognizer.ERROR_AUDIO -> return  "Error de audio"
+            SpeechRecognizer.ERROR_CLIENT -> return  "Error conexion con cliente"
+            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> return  "No tengo permisos"
+            SpeechRecognizer.ERROR_NETWORK -> return  "Error de red"
+            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> return  "Error de tiempo"
+            SpeechRecognizer.ERROR_NO_MATCH -> return  "Sin coicidencias"
+            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> return "Recon saturado"
+            SpeechRecognizer.ERROR_SERVER -> return  "Error desde servidor"
+            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> return  "No se detecta Input"
+            else -> return  "Error generico"
+        }
     }
 
 }
