@@ -1,9 +1,9 @@
 package vocs.nlstr
 
 import android.content.Intent
+import vocs.nlstr.servicios.RecognitionManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.view.View
@@ -14,9 +14,9 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import com.afollestad.materialdialogs.MaterialDialog
 import timber.log.Timber
+import java.io.File.separator
 
-class ini : AppCompatActivity(),RecognitionListener {
-
+class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
 
     //VARIABLES
     //componentes gráficos
@@ -29,97 +29,121 @@ class ini : AppCompatActivity(),RecognitionListener {
     @BindView(R.id.btnTglSpeech)
     lateinit var btnTglSpeech: ToggleButton
 
-    private var speechRecog: SpeechRecognizer? = null
+    lateinit var reconManager: RecognitionManager
 
 
-
+    //Cuando se crea
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ini)
 
         ButterKnife.bind(this)
 
+        btnTglSpeech.visibility = View.INVISIBLE
         barPrgSpeech.visibility = View.INVISIBLE
         barPrgSpeech.max = 10
 
-        if(SpeechRecognizer.isRecognitionAvailable(this)) {
-            speechRecog = SpeechRecognizer.createSpeechRecognizer(this)
-            speechRecog?.setRecognitionListener(this)
+        reconManager = RecognitionManager(this, buildRecognizerIntent(), this)
+    }
 
-            //Definimos metodos segun stado del boton
-            btnTglSpeech.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) startRecognition()
-                else stopRecognition()
+    //------------METODOS HEREDADOS---------------------//
+    override fun onPrepared(status: RecognitionManager.RecognitionStatus)
+    {
+        when (status) {
+            RecognitionManager.RecognitionStatus.SUCCESS -> {
+                btnTglSpeech.visibility = View.VISIBLE
+                btnTglSpeech.setOnCheckedChangeListener { _, isChecked ->
+
+                    //Determinamos si hay reconocimiento segun estado de boton
+                    if (isChecked) {startRecognition()
+                    } else {stopRecognition()}
+                }
             }
-        } else MaterialDialog.Builder(this)
-                .title("RECON NO DISPONIBLE")
-                .content("RECON NO SOPORTADO!!")
-                .positiveText(android.R.string.ok)
-                .show()
+            RecognitionManager.RecognitionStatus.FAILURE,
+            RecognitionManager.RecognitionStatus.UNAVAILABLE -> {
+                MaterialDialog.Builder(this)
+                        .title("No disponible")
+                        .content("Error en su servicio de reconocimiento")
+                        .positiveText(android.R.string.ok)
+                        .show()
+            }
+        }
+
     }
 
-    //------------METODOS---------------------//
-    //METODOS HEREDADOS A SPEECH RECOGNIZER
-    override fun onReadyForSpeech(p0: Bundle?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onReadyForSpeech(params: Bundle)
+    {
+        Timber.i(this.localClassName +" - onReadyForSpeech")
     }
 
-    override fun onRmsChanged(p0: Float) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onBufferReceived(buffer: ByteArray)
+    {
+        Timber.i(this.localClassName +" - onPartialResults")
     }
 
-    override fun onBufferReceived(p0: ByteArray?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onRmsChanged(rmsdB: Float)
+    {
+        //Usaremos el Progress Bar como indicador de dB de voz
+        barPrgSpeech.progress = rmsdB.toInt()
     }
 
-    override fun onPartialResults(p0: Bundle?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onPartialResults(results: List<String>) {
+        val text = results.joinToString(separator="\n")
+        Timber.i("onResults : %s", text)
     }
 
-    override fun onEvent(p0: Int, p1: Bundle?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
+    override fun onResults(results: List<String>, scores: FloatArray?) {
+        val text = results.joinToString(separator="\n")
+        Timber.i("onResults : %s", text)
     }
 
-    override fun onBeginningOfSpeech() {
+    override fun onEvent(eventType: Int, params: Bundle)
+    {
+        Timber.i(this.localClassName +" - onEvent")
+    }
+
+    override fun onBeginningOfSpeech()
+    {
         barPrgSpeech.isIndeterminate = false
-
         Timber.i(this.localClassName +" - onBeginningOfSpeech")
     }
 
-    override fun onEndOfSpeech() {
-        barPrgSpeech.isIndeterminate = true
-
+    override fun onEndOfSpeech()
+    {
         Timber.i(this.localClassName +" - onEndOfSpeech")
     }
 
-    override fun onError(errorCode: Int) {
-
+    override fun onError(errorCode: Int)
+    {
         val errorMessage = getErrorText(errorCode)
-        Timber.d("FAILED %s", errorMessage)
+        Timber.i("FAILED %s", errorMessage)
         txtMulSpeech.text = errorMessage
         btnTglSpeech.isChecked = false
     }
 
-    override fun onResults(p0: Bundle?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 
     //METODOS NO HEREDADOS//
-    private fun startRecognition() {
+    private fun startRecognition()
+    {
+        Timber.i(this.localClassName +" - startRecognition")
         btnTglSpeech.isChecked = true
         barPrgSpeech.visibility = View.VISIBLE
-        barPrgSpeech.isIndeterminate= true
-        speechRecog?.startListening(buildRecognizerIntent())
+        reconManager.startRecognition()
+
     }
 
-    private fun stopRecognition() {
+    private fun stopRecognition()
+    {
+        Timber.i(this.localClassName +" - startRecognition")
         btnTglSpeech.isChecked = false
         barPrgSpeech.visibility = View.INVISIBLE
-        barPrgSpeech.isIndeterminate = false
-        speechRecog?.stopListening()
+        barPrgSpeech.isIndeterminate = true
+        reconManager.stopRecognition()
     }
 
-    private fun buildRecognizerIntent(): Intent {
+    private fun buildRecognizerIntent(): Intent
+    {
         val recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH)
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, packageName)
@@ -128,8 +152,10 @@ class ini : AppCompatActivity(),RecognitionListener {
         return recognizerIntent
     }
 
-    private fun getErrorText(errorCode: Int): String {
-        when (errorCode) {
+    private fun getErrorText(errorCode: Int): String
+    {
+        when (errorCode)
+        {
             SpeechRecognizer.ERROR_AUDIO -> return  "Error de audio"
             SpeechRecognizer.ERROR_CLIENT -> return  "Error conexion con cliente"
             SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> return  "No tengo permisos"
@@ -142,7 +168,6 @@ class ini : AppCompatActivity(),RecognitionListener {
             else -> return  "Error generico"
         }
     }
-
 }
 
 

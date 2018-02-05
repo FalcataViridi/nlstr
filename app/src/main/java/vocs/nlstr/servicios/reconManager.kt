@@ -10,8 +10,10 @@ import android.speech.SpeechRecognizer
  * Created by Moises on 04/01/2018.
  */
 
-class RecognitionManager(context: Context, private val recognizerIntent: Intent
-                         ,private val callback: RecognitionCallback? = null ): RecognitionListener
+class RecognitionManager(context: Context
+                         , private val recognizerIntent: Intent
+                         ,private val callback: RecognitionCallback? = null
+                        ): RecognitionListener
 {
 
     private var speechRecog: SpeechRecognizer? = null
@@ -33,51 +35,60 @@ class RecognitionManager(context: Context, private val recognizerIntent: Intent
             callback?.onPrepared(RecognitionStatus.UNAVAILABLE)
         }
     }
-    fun startRecognition() {
+    fun startRecognition()
+    {
         speechRecog?.cancel()
         speechRecog?.startListening(recognizerIntent)
     }
 
-    fun stopRecognition() {
+    fun stopRecognition()
+    {
         speechRecog?.stopListening()
+
     }
 
-    override fun onReadyForSpeech(params: Bundle) {
+    override fun onReadyForSpeech(params: Bundle)
+    {
         callback?.onReadyForSpeech(params)
-
     }
 
-    override fun onRmsChanged(rmsdB: Float) {
+    override fun onRmsChanged(rmsdB: Float)
+    {
         callback?.onRmsChanged(rmsdB)
     }
 
-    override fun onBufferReceived(buffer: ByteArray) {
+    override fun onBufferReceived(buffer: ByteArray)
+    {
         callback?.onBufferReceived(buffer)
     }
 
-    override fun onEvent(EventType: Int, params: Bundle) {
+    override fun onEvent(EventType: Int, params: Bundle)
+    {
         callback?.onEvent(EventType, params)
     }
 
-    override fun onBeginningOfSpeech() {
+    override fun onBeginningOfSpeech()
+    {
         callback?.onBeginningOfSpeech()
     }
 
-    override fun onEndOfSpeech() {
+    override fun onEndOfSpeech()
+    {
         callback?.onEndOfSpeech()
     }
 
-    override fun onError(errorCode: Int) {
+    override fun onError(errorCode: Int)
+    {
         callback?.onError(errorCode)
 
         TODO("Definir como indicar el error")
-        
         //FIXME: Temporalmente si existe un error se inicia el reconocimiento
         startRecognition()
     }
 
 
-    override fun onResults(results: Bundle) {
+    override fun onResults(results: Bundle)
+    {
         TODO("falta decidir nuevas implementaciones como estadisticas")
 
         val matcheS = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
