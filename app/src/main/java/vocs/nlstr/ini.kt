@@ -95,7 +95,7 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
 
     override fun onResults(results: List<String>, scores: FloatArray?) {
         val text = results.joinToString(separator="\n")
-        Timber.i("onResults : %s", text)
+        Timber.i("onResults : %s", text, scores.toString())
     }
 
     override fun onEvent(eventType: Int, params: Bundle)

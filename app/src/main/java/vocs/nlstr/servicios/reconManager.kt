@@ -15,7 +15,6 @@ class RecognitionManager(context: Context
                          ,private val callback: RecognitionCallback? = null
                         ): RecognitionListener
 {
-
     private var speechRecog: SpeechRecognizer? = null
 
     init
@@ -44,7 +43,6 @@ class RecognitionManager(context: Context
     fun stopRecognition()
     {
         speechRecog?.stopListening()
-
     }
 
     override fun onReadyForSpeech(params: Bundle)
@@ -83,6 +81,7 @@ class RecognitionManager(context: Context
 
         TODO("Definir como indicar el error")
         //FIXME: Temporalmente si existe un error se inicia el reconocimiento
+
         startRecognition()
     }
 
@@ -100,11 +99,11 @@ class RecognitionManager(context: Context
 
     }
 
-    override fun onPartialResults(results: Bundle) {
+    override fun onPartialResults(results: Bundle)
+    {
         val matcheS = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
 
         if (null != matcheS) callback?.onPartialResults(matcheS)
-
     }
 
     //Interfaz de los metodos heredados
