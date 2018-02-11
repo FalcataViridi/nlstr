@@ -43,7 +43,7 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
         barPrgSpeech.visibility = View.INVISIBLE
         barPrgSpeech.max = 10
 
-        reconManager = RecognitionManager(this, buildRecognizerIntent(), this)
+        reconManager = RecognitionManager(this, "OK", buildRecognizerIntent(), this)
     }
 
     //------------METODOS HEREDADOS---------------------//

@@ -5,13 +5,15 @@ import android.os.Bundle
 import android.content.Intent
 import android.speech.RecognitionListener
 import android.speech.SpeechRecognizer
+import butterknife.ButterKnife
 
 /**
  * Created by Moises on 04/01/2018.
  */
 
-class RecognitionManager(context: Context
-                         , private val recognizerIntent: Intent
+class RecognitionManager(private val context: Context
+                         ,private val activationWord: String
+                         ,private val recognizerIntent: Intent
                          ,private val callback: RecognitionCallback? = null
                         ): RecognitionListener
 {
@@ -19,8 +21,12 @@ class RecognitionManager(context: Context
 
     init
     {
-        if (SpeechRecognizer.isRecognitionAvailable(context))
-        {
+
+       initializeRecognizer()
+    }
+
+    private fun initializeRecognizer() {
+        if (SpeechRecognizer.isRecognitionAvailable(context)) {
             speechRecog = SpeechRecognizer.createSpeechRecognizer(context)
             speechRecog?.setRecognitionListener(this)
 
@@ -29,54 +35,55 @@ class RecognitionManager(context: Context
                     if (null != speechRecog) RecognitionStatus.SUCCESS else RecognitionStatus.FAILURE
             )
 
-        } else
-        {
+        } else {
             callback?.onPrepared(RecognitionStatus.UNAVAILABLE)
         }
     }
+
     fun startRecognition()
     {
-        speechRecog?.cancel()
+
+        cancelRecognition()
         speechRecog?.startListening(recognizerIntent)
     }
 
-    fun stopRecognition()
-    {
+    fun cancelRecognition() {
+        speechRecog?.cancel()
+    }
+
+    fun stopRecognition() {
         speechRecog?.stopListening()
     }
 
-    override fun onReadyForSpeech(params: Bundle)
-    {
+    fun destroyRecognizer(){
+        speechRecog?.destroy()
+    }
+
+    override fun onReadyForSpeech(params: Bundle) {
         callback?.onReadyForSpeech(params)
     }
 
-    override fun onRmsChanged(rmsdB: Float)
-    {
+    override fun onRmsChanged(rmsdB: Float) {
         callback?.onRmsChanged(rmsdB)
     }
 
-    override fun onBufferReceived(buffer: ByteArray)
-    {
+    override fun onBufferReceived(buffer: ByteArray) {
         callback?.onBufferReceived(buffer)
     }
 
-    override fun onEvent(EventType: Int, params: Bundle)
-    {
+    override fun onEvent(EventType: Int, params: Bundle) {
         callback?.onEvent(EventType, params)
     }
 
-    override fun onBeginningOfSpeech()
-    {
+    override fun onBeginningOfSpeech() {
         callback?.onBeginningOfSpeech()
     }
 
-    override fun onEndOfSpeech()
-    {
+    override fun onEndOfSpeech() {
         callback?.onEndOfSpeech()
     }
 
-    override fun onError(errorCode: Int)
-    {
+    override fun onError(errorCode: Int) {
         callback?.onError(errorCode)
 
         TODO("Definir como indicar el error")
@@ -86,8 +93,7 @@ class RecognitionManager(context: Context
     }
 
 
-    override fun onResults(results: Bundle)
-    {
+    override fun onResults(results: Bundle) {
         TODO("falta decidir nuevas implementaciones como estadisticas")
 
         val matcheS = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
@@ -96,11 +102,9 @@ class RecognitionManager(context: Context
         if (null != matcheS) callback?.onResults(matcheS, scoreS)
 
         startRecognition()
-
     }
 
-    override fun onPartialResults(results: Bundle)
-    {
+    override fun onPartialResults(results: Bundle) {
         val matcheS = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
 
         if (null != matcheS) callback?.onPartialResults(matcheS)
