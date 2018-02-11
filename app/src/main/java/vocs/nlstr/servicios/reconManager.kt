@@ -19,9 +19,10 @@ class RecognitionManager(private val context: Context
 {
     private var speechRecog: SpeechRecognizer? = null
 
+    var isActive: Boolean = false
+
     init
     {
-
        initializeRecognizer()
     }
 
@@ -84,7 +85,19 @@ class RecognitionManager(private val context: Context
     }
 
     override fun onError(errorCode: Int) {
-        callback?.onError(errorCode)
+
+        //Si esta activado definiremos que es un error
+        if (isActive) {
+            callback?.onError(errorCode)
+        }
+
+        //Si no reacciona volvemos a comenzar, eliminamos el recog y lo reiniciamos
+        when (errorCode) {
+            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> {
+                destroyRecognizer()
+                initializeRecognizer()
+            }
+        }
 
         TODO("Definir como indicar el error")
         //FIXME: Temporalmente si existe un error se inicia el reconocimiento
@@ -93,13 +106,29 @@ class RecognitionManager(private val context: Context
     }
 
 
+
+
     override fun onResults(results: Bundle) {
         TODO("falta decidir nuevas implementaciones como estadisticas")
 
-        val matcheS = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-        val scoreS =  results.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
+        val matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+        val scores =  results.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
 
-        if (null != matcheS) callback?.onResults(matcheS, scoreS)
+        if (null != matches) {
+            if (isActive){
+                isActive = false
+                callback?.onResults(matches, scores)
+            }else {
+                matches.forEach{
+                    if (it.contains(other = activationWord, ignoreCase = true)){
+                        isActive = true
+                        callback?.onKeywordDetected()
+                        return@forEach
+                    }
+                }
+            }
+
+        }
 
         startRecognition()
     }
@@ -122,6 +151,9 @@ class RecognitionManager(private val context: Context
         fun onError(errorCode: Int)
         fun onEvent(eventType: Int, params: Bundle)
         fun onEndOfSpeech()
+        fun onKeywordDetected() {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
     }
 
     /**

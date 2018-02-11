@@ -43,22 +43,26 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
         barPrgSpeech.visibility = View.INVISIBLE
         barPrgSpeech.max = 10
 
-        reconManager = RecognitionManager(this, "OK", buildRecognizerIntent(), this)
+        reconManager = RecognitionManager(this, "BRAVO", buildRecognizerIntent(), this)
     }
+
+
 
     //------------METODOS HEREDADOS---------------------//
     override fun onPrepared(status: RecognitionManager.RecognitionStatus)
     {
         when (status) {
             RecognitionManager.RecognitionStatus.SUCCESS -> {
-                btnTglSpeech.visibility = View.VISIBLE
+     /*           btnTglSpeech.visibility = View.VISIBLE
                 btnTglSpeech.setOnCheckedChangeListener { _, isChecked ->
 
                     //Determinamos si hay reconocimiento segun estado de boton
                     if (isChecked) {startRecognition()
                     } else {stopRecognition()}
-                }
+                }*/
+                txtMulSpeech.text = "Recognition ready"
             }
+
             RecognitionManager.RecognitionStatus.FAILURE,
             RecognitionManager.RecognitionStatus.UNAVAILABLE -> {
                 MaterialDialog.Builder(this)
@@ -69,6 +73,20 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
             }
         }
 
+    }
+
+    override fun onDestroy() {
+        reconManager.destroyRecognizer()
+        super.onDestroy()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        reconManager.startRecognition()
+    }
+
+    override fun onKeywordDetected() {
+        txtMulSpeech.text = "Keyword Detected"
     }
 
     override fun onReadyForSpeech(params: Bundle)
