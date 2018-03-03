@@ -53,23 +53,25 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
     {
         when (status) {
             RecognitionManager.RecognitionStatus.SUCCESS -> {
-     /*           btnTglSpeech.visibility = View.VISIBLE
+                btnTglSpeech.visibility = View.VISIBLE
                 btnTglSpeech.setOnCheckedChangeListener { _, isChecked ->
 
                     //Determinamos si hay reconocimiento segun estado de boton
                     if (isChecked) {startRecognition()
+                        txtMulSpeech.text = "Recognition ready"
                     } else {stopRecognition()}
-                }*/
-                txtMulSpeech.text = "Recognition ready"
+                }
             }
 
-            RecognitionManager.RecognitionStatus.FAILURE,
-            RecognitionManager.RecognitionStatus.UNAVAILABLE -> {
+            RecognitionManager.RecognitionStatus.FAILURE
+            ,RecognitionManager.RecognitionStatus.UNAVAILABLE -> {
                 MaterialDialog.Builder(this)
                         .title("No disponible")
                         .content("Error en su servicio de reconocimiento")
                         .positiveText(android.R.string.ok)
                         .show()
+
+                txtMulSpeech.text = "Recognition unavailable"
             }
         }
 

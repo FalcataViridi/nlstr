@@ -6,6 +6,7 @@ import android.content.Intent
 import android.speech.RecognitionListener
 import android.speech.SpeechRecognizer
 import butterknife.ButterKnife
+import timber.log.Timber
 
 /**
  * Created by Moises on 04/01/2018.
@@ -23,7 +24,8 @@ class RecognitionManager(private val context: Context
 
     init
     {
-       initializeRecognizer()
+        Timber.i(this.toString() + " - INICIO")
+        initializeRecognizer()
     }
 
     private fun initializeRecognizer() {
@@ -43,12 +45,14 @@ class RecognitionManager(private val context: Context
 
     fun startRecognition()
     {
-
+        Timber.i(this.toString() + " - startRecognition")
         cancelRecognition()
         speechRecog?.startListening(recognizerIntent)
     }
 
     fun cancelRecognition() {
+
+        Timber.i(this.toString() + " - cancelRecognition")
         speechRecog?.cancel()
     }
 
@@ -86,6 +90,8 @@ class RecognitionManager(private val context: Context
 
     override fun onError(errorCode: Int) {
 
+        Timber.e(this.toString() + " - reconManager.onError - " + errorCode)
+
         //Si esta activado definiremos que es un error
         if (isActive) {
             callback?.onError(errorCode)
@@ -99,7 +105,7 @@ class RecognitionManager(private val context: Context
             }
         }
 
-        TODO("Definir como indicar el error")
+        //TODO("Definir como indicar el error")
         //FIXME: Temporalmente si existe un error se inicia el reconocimiento
 
         startRecognition()
