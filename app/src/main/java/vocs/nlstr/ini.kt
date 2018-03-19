@@ -32,7 +32,6 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
     lateinit var reconManager: RecognitionManager
 
 
-    //Cuando se crea
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ini)

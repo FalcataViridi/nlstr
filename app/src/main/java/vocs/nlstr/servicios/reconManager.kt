@@ -1,12 +1,22 @@
 package vocs.nlstr.servicios
 
+import android.Manifest
+import android.R
 import android.content.Context
 import android.os.Bundle
 import android.content.Intent
 import android.speech.RecognitionListener
 import android.speech.SpeechRecognizer
+import android.widget.Toast
 import butterknife.ButterKnife
 import timber.log.Timber
+import android.content.pm.PackageManager
+import android.support.v4.content.PermissionChecker.checkCallingOrSelfPermission
+import android.Manifest.permission
+import android.Manifest.permission.RECORD_AUDIO
+import android.os.Build
+import android.support.v13.app.FragmentCompat.requestPermissions
+
 
 /**
  * Created by Moises on 04/01/2018.
@@ -51,7 +61,6 @@ class RecognitionManager(private val context: Context
     }
 
     fun cancelRecognition() {
-
         Timber.i(this.toString() + " - cancelRecognition")
         speechRecog?.cancel()
     }
@@ -77,6 +86,7 @@ class RecognitionManager(private val context: Context
     }
 
     override fun onEvent(EventType: Int, params: Bundle) {
+        Timber.i(this.toString() + " Evento: $EventType")
         callback?.onEvent(EventType, params)
     }
 
@@ -90,7 +100,7 @@ class RecognitionManager(private val context: Context
 
     override fun onError(errorCode: Int) {
 
-        Timber.e(this.toString() + " - reconManager.onError - " + errorCode)
+        Timber.e(this.toString() + " - reconManager.onError - $errorCode")
 
         //Si esta activado definiremos que es un error
         if (isActive) {
@@ -99,10 +109,20 @@ class RecognitionManager(private val context: Context
 
         //Si no reacciona volvemos a comenzar, eliminamos el recog y lo reiniciamos
         when (errorCode) {
+            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> {
+
+                //TODO: crear si es necesario un control por funcion de conocer permiso y peticion si falta
+
+                destroyRecognizer()
+                initializeRecognizer()
+            }
+
             SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> {
                 destroyRecognizer()
                 initializeRecognizer()
             }
+
+            else -> {}
         }
 
         //TODO("Definir como indicar el error")
@@ -110,8 +130,6 @@ class RecognitionManager(private val context: Context
 
         startRecognition()
     }
-
-
 
 
     override fun onResults(results: Bundle) {
