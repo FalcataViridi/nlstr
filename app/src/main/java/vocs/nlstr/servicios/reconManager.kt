@@ -16,6 +16,10 @@ import android.Manifest.permission
 import android.Manifest.permission.RECORD_AUDIO
 import android.os.Build
 import android.support.v13.app.FragmentCompat.requestPermissions
+import android.support.v4.content.ContextCompat.startActivity
+import android.content.ComponentName
+
+
 
 
 /**
@@ -133,8 +137,8 @@ class RecognitionManager(private val context: Context
 
 
     override fun onResults(results: Bundle) {
-        TODO("falta decidir nuevas implementaciones como estadisticas")
 
+        //FIXME: arreglar fallo en recognizer error 6
         val matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
         val scores =  results.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
 

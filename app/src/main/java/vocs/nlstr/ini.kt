@@ -9,6 +9,7 @@ import android.speech.SpeechRecognizer
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import android.widget.ToggleButton
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -42,7 +43,7 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
         barPrgSpeech.visibility = View.INVISIBLE
         barPrgSpeech.max = 10
 
-        reconManager = RecognitionManager(this, "BRAVO", buildRecognizerIntent(), this)
+        reconManager = RecognitionManager(this, "bravo", buildRecognizerIntent(), this)
     }
 
 
@@ -92,12 +93,12 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
 
     override fun onReadyForSpeech(params: Bundle)
     {
-        Timber.i(this.localClassName +" - onReadyForSpeech")
+       Toast.makeText(this, "onReadyForSpeech", Toast.LENGTH_LONG)
     }
 
     override fun onBufferReceived(buffer: ByteArray)
     {
-        Timber.i(this.localClassName +" - onPartialResults")
+        Toast.makeText(this, "onReadyForSpeech", Toast.LENGTH_LONG)
     }
 
     override fun onRmsChanged(rmsdB: Float)
@@ -108,35 +109,35 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
 
     override fun onPartialResults(results: List<String>) {
         val text = results.joinToString(separator="\n")
-        Timber.i("onResults : %s", text)
+        Toast.makeText(this, "onResults : %s", Toast.LENGTH_LONG)
     }
 
 
     override fun onResults(results: List<String>, scores: FloatArray?) {
         val text = results.joinToString(separator="\n")
-        Timber.i("onResults : %s", text, scores.toString())
+        Toast.makeText(this, "onResults : %s", Toast.LENGTH_LONG)
     }
 
     override fun onEvent(eventType: Int, params: Bundle)
     {
-        Timber.i(this.localClassName +" - onEvent")
+        Toast.makeText(this, "onEvent", Toast.LENGTH_LONG)
     }
 
     override fun onBeginningOfSpeech()
     {
         barPrgSpeech.isIndeterminate = false
-        Timber.i(this.localClassName +" - onBeginningOfSpeech")
+        Toast.makeText(this, "onBeginning", Toast.LENGTH_LONG)
     }
 
     override fun onEndOfSpeech()
     {
-        Timber.i(this.localClassName +" - onEndOfSpeech")
+        Toast.makeText(this, "onEnding : %s", Toast.LENGTH_LONG)
     }
 
     override fun onError(errorCode: Int)
     {
         val errorMessage = getErrorText(errorCode)
-        Timber.i("FAILED %s", errorMessage)
+        Toast.makeText(this, "onError - ${getErrorText(errorCode)}", Toast.LENGTH_LONG)
         txtMulSpeech.text = errorMessage
         btnTglSpeech.isChecked = false
     }
@@ -145,7 +146,7 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
     //METODOS NO HEREDADOS//
     private fun startRecognition()
     {
-        Timber.i(this.localClassName +" - startRecognition")
+        Toast.makeText(this, "onStart", Toast.LENGTH_LONG)
         btnTglSpeech.isChecked = true
         barPrgSpeech.visibility = View.VISIBLE
         reconManager.startRecognition()
@@ -154,7 +155,7 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
 
     private fun stopRecognition()
     {
-        Timber.i(this.localClassName +" - startRecognition")
+        Toast.makeText(this, "onStop", Toast.LENGTH_LONG)
         btnTglSpeech.isChecked = false
         barPrgSpeech.visibility = View.INVISIBLE
         barPrgSpeech.isIndeterminate = true
