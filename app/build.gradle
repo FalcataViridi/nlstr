@@ -26,7 +26,7 @@ android {
     }
 }
 
-def butterknife_version = "8.5.1"
+def butterknife_version = "8.8.1"
 def timber_version = "4.5.1"
 def material_dialogs_version = "0.9.4.4"
 
@@ -42,8 +42,9 @@ dependencies {
 
     compile "com.jakewharton.timber:timber:$timber_version"
     compile "com.jakewharton:butterknife:$butterknife_version"
-    compile "com.afollestad.material-dialogs:core:$material_dialogs_version"
+    kapt "com.jakewharton:butterknife-compiler:$butterknife_version"
 
+    compile "com.afollestad.material-dialogs:core:$material_dialogs_version"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
