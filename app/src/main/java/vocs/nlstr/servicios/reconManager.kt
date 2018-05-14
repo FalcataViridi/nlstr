@@ -142,6 +142,8 @@ class RecognitionManager(private val context: Context
         val matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
         val scores =  results.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
 
+        print(scores);
+
         if (null != matches) {
             if (isActive){
                 isActive = false
