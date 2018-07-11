@@ -14,8 +14,6 @@ import android.widget.ToggleButton
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.afollestad.materialdialogs.MaterialDialog
-import timber.log.Timber
-import java.io.File.separator
 
 class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
 
@@ -43,7 +41,7 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
         barPrgSpeech.visibility = View.INVISIBLE
         barPrgSpeech.max = 10
 
-        reconManager = RecognitionManager(this, "bravo", buildRecognizerIntent(), this)
+        reconManager = RecognitionManager(this, null, buildRecognizerIntent(), this)
     }
 
 

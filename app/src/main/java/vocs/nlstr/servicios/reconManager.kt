@@ -1,44 +1,35 @@
 package vocs.nlstr.servicios
 
-import android.Manifest
-import android.R
 import android.content.Context
 import android.os.Bundle
 import android.content.Intent
+import android.media.AudioManager
 import android.speech.RecognitionListener
 import android.speech.SpeechRecognizer
 import android.widget.Toast
-import butterknife.ButterKnife
 import timber.log.Timber
-import android.content.pm.PackageManager
-import android.support.v4.content.PermissionChecker.checkCallingOrSelfPermission
-import android.Manifest.permission
-import android.Manifest.permission.RECORD_AUDIO
-import android.os.Build
-import android.support.v13.app.FragmentCompat.requestPermissions
-import android.support.v4.content.ContextCompat.startActivity
-import android.content.ComponentName
-
-
-
 
 /**
  * Created by Moises on 04/01/2018.
  */
 
 class RecognitionManager(private val context: Context
-                         ,private val activationWord: String
+                         ,private val wordsComm: List<String>?
                          ,private val recognizerIntent: Intent
                          ,private val callback: RecognitionCallback? = null
                         ): RecognitionListener
 {
-    private var speechRecog: SpeechRecognizer? = null
 
     var isActive: Boolean = false
 
+    private var audioManager: AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private var speechRecog: SpeechRecognizer? = null
+    private var commandsOnlyRecognition: List<String>? = wordsComm
+
+
     init
     {
-        Timber.i(this.toString() + " - INICIO")
+        Toast.makeText(context, "inicio", Toast.LENGTH_SHORT).show()
         initializeRecognizer()
     }
 
@@ -49,9 +40,9 @@ class RecognitionManager(private val context: Context
 
             //Cuando creamos el callback nos aseguramos de setear el estado del speech recognizer
             callback?.onPrepared(
-                    if (null != speechRecog) RecognitionStatus.SUCCESS else RecognitionStatus.FAILURE
+                    if (null != speechRecog) RecognitionStatus.SUCCESS
+                    else RecognitionStatus.FAILURE
             )
-
         } else {
             callback?.onPrepared(RecognitionStatus.UNAVAILABLE)
         }
@@ -59,13 +50,15 @@ class RecognitionManager(private val context: Context
 
     fun startRecognition()
     {
-        Timber.i(this.toString() + " - startRecognition")
+        Toast.makeText(context, "start recognition", Toast.LENGTH_SHORT).show()
         cancelRecognition()
         speechRecog?.startListening(recognizerIntent)
     }
 
     fun cancelRecognition() {
-        Timber.i(this.toString() + " - cancelRecognition")
+        var toastMsg: Toast
+        Toast.makeText(context, "Cancel recognition", Toast.LENGTH_SHORT).show()
+        //Timber.i(this.toString() + " - cancelRecognition")
         speechRecog?.cancel()
     }
 
@@ -90,7 +83,7 @@ class RecognitionManager(private val context: Context
     }
 
     override fun onEvent(EventType: Int, params: Bundle) {
-        Timber.i(this.toString() + " Evento: $EventType")
+
         callback?.onEvent(EventType, params)
     }
 
@@ -148,7 +141,7 @@ class RecognitionManager(private val context: Context
                 callback?.onResults(matches, scores)
             }else {
                 matches.forEach{
-                    if (it.contains(other = activationWord, ignoreCase = true)){
+                    if (it.contains(other = "candy", ignoreCase = true)){
                         isActive = true
                         callback?.onKeywordDetected()
                         return@forEach

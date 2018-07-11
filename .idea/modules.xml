@@ -4,8 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/NLSTR.iml" filepath="$PROJECT_DIR$/NLSTR.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://E:\Pry\REPOS\Github\NLSTR\app\app.iml" filepath="E:\Pry\REPOS\Github\NLSTR\app\app.iml" />
-      <module fileurl="file://E:\Pry\REPOS\Github\NLSTR\nlstr.iml" filepath="E:\Pry\REPOS\Github\NLSTR\nlstr.iml" />
     </modules>
   </component>
 </project>
