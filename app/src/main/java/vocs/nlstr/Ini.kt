@@ -14,8 +14,12 @@ import android.widget.ToggleButton
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.afollestad.materialdialogs.MaterialDialog
+import vocs.nlstr.interfaces.RecognitionCallback
+import vocs.nlstr.servicios.RecognitionStatus
+import com.karumi
 
-class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
+class Ini : AppCompatActivity(), RecognitionCallback, PermissionListener {
+
 
     //VARIABLES
     //componentes gráficos
@@ -41,16 +45,16 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
         barPrgSpeech.visibility = View.INVISIBLE
         barPrgSpeech.max = 10
 
-        reconManager = RecognitionManager(this, null, buildRecognizerIntent(), this)
+        reconManager = RecognitionManager(this, "bravo", this)
     }
 
 
 
     //------------METODOS HEREDADOS---------------------//
-    override fun onPrepared(status: RecognitionManager.RecognitionStatus)
+    override fun onPrepared(status: RecognitionStatus)
     {
         when (status) {
-            RecognitionManager.RecognitionStatus.SUCCESS -> {
+            RecognitionStatus.SUCCESS -> {
                 btnTglSpeech.visibility = View.VISIBLE
                 btnTglSpeech.setOnCheckedChangeListener { _, isChecked ->
 
@@ -61,8 +65,8 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
                 }
             }
 
-            RecognitionManager.RecognitionStatus.FAILURE
-            ,RecognitionManager.RecognitionStatus.UNAVAILABLE -> {
+            RecognitionStatus.FAILURE
+            ,RecognitionStatus.UNAVAILABLE -> {
                 MaterialDialog.Builder(this)
                         .title("No disponible")
                         .content("Error en su servicio de reconocimiento")
@@ -82,10 +86,10 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
 
     override fun onResume() {
         super.onResume()
-        reconManager.startRecognition()
+        startRecognition()
     }
 
-    override fun onKeywordDetected() {
+    override fun onKeywordDetected(keyWord: String) {
         txtMulSpeech.text = "Keyword Detected"
     }
 
@@ -158,16 +162,6 @@ class ini : AppCompatActivity(), RecognitionManager.RecognitionCallback{
         barPrgSpeech.visibility = View.INVISIBLE
         barPrgSpeech.isIndeterminate = true
         reconManager.stopRecognition()
-    }
-
-    private fun buildRecognizerIntent(): Intent
-    {
-        val recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH)
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, packageName)
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
-        return recognizerIntent
     }
 
     private fun getErrorText(errorCode: Int): String

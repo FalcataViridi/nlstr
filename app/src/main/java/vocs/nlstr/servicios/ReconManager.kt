@@ -5,31 +5,34 @@ import android.os.Bundle
 import android.content.Intent
 import android.media.AudioManager
 import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.widget.Toast
 import timber.log.Timber
+import vocs.nlstr.interfaces.RecognitionCallback
 
 /**
  * Created by Moises on 04/01/2018.
  */
 
 class RecognitionManager(private val context: Context
-                         ,private val wordsComm: List<String>?
-                         ,private val recognizerIntent: Intent
+                         ,private val keyWords: String
                          ,private val callback: RecognitionCallback? = null
                         ): RecognitionListener
 {
 
     var isActive: Boolean = false
+    var isListening: Boolean = false
+    var shouldMute: Boolean = false
+    var recognizerIntent: Intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
 
     private var audioManager: AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private var speechRecog: SpeechRecognizer? = null
-    private var commandsOnlyRecognition: List<String>? = wordsComm
 
 
     init
     {
-        Toast.makeText(context, "inicio", Toast.LENGTH_SHORT).show()
+        setRecognizerPreferences()
         initializeRecognizer()
     }
 
@@ -37,7 +40,6 @@ class RecognitionManager(private val context: Context
         if (SpeechRecognizer.isRecognitionAvailable(context)) {
             speechRecog = SpeechRecognizer.createSpeechRecognizer(context)
             speechRecog?.setRecognitionListener(this)
-
             //Cuando creamos el callback nos aseguramos de setear el estado del speech recognizer
             callback?.onPrepared(
                     if (null != speechRecog) RecognitionStatus.SUCCESS
@@ -50,9 +52,12 @@ class RecognitionManager(private val context: Context
 
     fun startRecognition()
     {
-        Toast.makeText(context, "start recognition", Toast.LENGTH_SHORT).show()
-        cancelRecognition()
-        speechRecog?.startListening(recognizerIntent)
+        //Toast.makeText(context, "start recognition", Toast.LENGTH_SHORT).show()
+        if(!isListening) {
+            isListening = true
+            speechRecog?.startListening(recognizerIntent)
+        }
+
     }
 
     fun cancelRecognition() {
@@ -67,10 +72,12 @@ class RecognitionManager(private val context: Context
     }
 
     fun destroyRecognizer(){
+        muteRecognition(false)
         speechRecog?.destroy()
     }
 
     override fun onReadyForSpeech(params: Bundle) {
+        muteRecognition(shouldMute || !isActive)
         callback?.onReadyForSpeech(params)
     }
 
@@ -103,13 +110,13 @@ class RecognitionManager(private val context: Context
         if (isActive) {
             callback?.onError(errorCode)
         }
+        isActive = false
+        isListening = false
 
         //Si no reacciona volvemos a comenzar, eliminamos el recog y lo reiniciamos
         when (errorCode) {
+            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> cancelRecognition()
             SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> {
-
-                //TODO: crear si es necesario un control por funcion de conocer permiso y peticion si falta
-
                 destroyRecognizer()
                 initializeRecognizer()
             }
@@ -131,11 +138,8 @@ class RecognitionManager(private val context: Context
 
     override fun onResults(results: Bundle) {
 
-        //FIXME: arreglar fallo en recognizer error 6
         val matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
         val scores =  results.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
-
-        print(scores);
 
         if (null != matches) {
             if (isActive){
@@ -143,46 +147,35 @@ class RecognitionManager(private val context: Context
                 callback?.onResults(matches, scores)
             }else {
                 matches.forEach{
-                    if (it.contains(other = "candy", ignoreCase = true)){
+                    if (keyWords.contains(it)){
                         isActive = true
-                        callback?.onKeywordDetected()
+                        callback?.onKeywordDetected(it)
                         return@forEach
                     }
                 }
             }
-
         }
-
+        isListening = false
         startRecognition()
     }
 
     override fun onPartialResults(results: Bundle) {
         val matcheS = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
 
-        if (null != matcheS) callback?.onPartialResults(matcheS)
+        if (isActive && null != matcheS) callback?.onPartialResults(matcheS)
     }
 
-    //Interfaz de los metodos heredados
-    interface RecognitionCallback {
-        fun onPrepared(status: RecognitionStatus)
-        fun onBeginningOfSpeech()
-        fun onReadyForSpeech(params: Bundle)
-        fun onBufferReceived(buffer: ByteArray)
-        fun onRmsChanged(rmsdB: Float)
-        fun onPartialResults(results: List<String>)
-        fun onResults(results: List<String>, scores: FloatArray?)
-        fun onError(errorCode: Int)
-        fun onEvent(eventType: Int, params: Bundle)
-        fun onEndOfSpeech()
-        fun onKeywordDetected() {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
+    private fun muteRecognition(isMuted: Boolean) {
+        val flag = if (isMuted) AudioManager.ADJUST_MUTE else AudioManager.ADJUST_UNMUTE
+        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, flag, 0)
+        audioManager.adjustStreamVolume(AudioManager.STREAM_SYSTEM, flag, 0)
     }
 
-    /**
-     * Posibles estados del recon
-     */
-    enum class RecognitionStatus {
-        SUCCESS, FAILURE, UNAVAILABLE
+
+    private fun setRecognizerPreferences() {
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH)
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, context.packageName)
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
     }
 }
