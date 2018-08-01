@@ -16,9 +16,8 @@ import butterknife.ButterKnife
 import com.afollestad.materialdialogs.MaterialDialog
 import vocs.nlstr.interfaces.RecognitionCallback
 import vocs.nlstr.servicios.RecognitionStatus
-import com.karumi
 
-class Ini : AppCompatActivity(), RecognitionCallback, PermissionListener {
+class Ini : AppCompatActivity(), RecognitionCallback{
 
 
     //VARIABLES
