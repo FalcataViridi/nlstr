@@ -1,9 +1,9 @@
 package vocs.nlstr.servicios
 
 import android.content.Context
-import android.os.Bundle
 import android.content.Intent
 import android.media.AudioManager
+import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -16,10 +16,9 @@ import vocs.nlstr.interfaces.RecognitionCallback
  */
 
 class RecognitionManager(private val context: Context
-                         ,private val keyWords: String
-                         ,private val callback: RecognitionCallback? = null
-                        ): RecognitionListener
-{
+                         , private val keyWords: String
+                         , private val callback: RecognitionCallback? = null
+) : RecognitionListener {
 
     var isActive: Boolean = false
     var isListening: Boolean = false
@@ -30,8 +29,7 @@ class RecognitionManager(private val context: Context
     private var speechRecog: SpeechRecognizer? = null
 
 
-    init
-    {
+    init {
         setRecognizerPreferences()
         initializeRecognizer()
     }
@@ -40,6 +38,7 @@ class RecognitionManager(private val context: Context
         if (SpeechRecognizer.isRecognitionAvailable(context)) {
             speechRecog = SpeechRecognizer.createSpeechRecognizer(context)
             speechRecog?.setRecognitionListener(this)
+
             //Cuando creamos el callback nos aseguramos de setear el estado del speech recognizer
             callback?.onPrepared(
                     if (null != speechRecog) RecognitionStatus.SUCCESS
@@ -50,10 +49,9 @@ class RecognitionManager(private val context: Context
         }
     }
 
-    fun startRecognition()
-    {
+    fun startRecognition() {
         //Toast.makeText(context, "start recognition", Toast.LENGTH_SHORT).show()
-        if(!isListening) {
+        if (!isListening) {
             isListening = true
             speechRecog?.startListening(recognizerIntent)
         }
@@ -71,7 +69,7 @@ class RecognitionManager(private val context: Context
         speechRecog?.stopListening()
     }
 
-    fun destroyRecognizer(){
+    fun destroyRecognizer() {
         muteRecognition(false)
         speechRecog?.destroy()
     }
@@ -126,7 +124,8 @@ class RecognitionManager(private val context: Context
                 initializeRecognizer()
             }
 
-            else -> {}
+            else -> {
+            }
         }
 
         //TODO("Definir como indicar el error")
@@ -139,15 +138,15 @@ class RecognitionManager(private val context: Context
     override fun onResults(results: Bundle) {
 
         val matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-        val scores =  results.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
+        val scores = results.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
 
         if (null != matches) {
-            if (isActive){
+            if (isActive) {
                 isActive = false
                 callback?.onResults(matches, scores)
-            }else {
-                matches.forEach{
-                    if (keyWords.contains(it)){
+            } else {
+                matches.forEach {
+                    if (it.toLowerCase().contains(keyWords)) {
                         isActive = true
                         callback?.onKeywordDetected(it)
                         return@forEach
