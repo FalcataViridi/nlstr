@@ -47,6 +47,9 @@ class Ini : AppCompatActivity(), RecognitionCallback {
         barPrgSpeech.visibility = View.INVISIBLE
         barPrgSpeech.max = 10
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 101)
+        }
 
         var matches = ArrayList<String>()
         matches.add("bravo")
@@ -167,6 +170,17 @@ class Ini : AppCompatActivity(), RecognitionCallback {
             SpeechRecognizer.ERROR_SERVER -> "Error desde servidor"
             SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No se detecta Input"
             else -> "Error generico"
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            101 -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startRecognition()
+                }
+            }
         }
     }
 }
