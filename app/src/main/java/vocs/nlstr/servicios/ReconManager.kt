@@ -16,8 +16,9 @@ import vocs.nlstr.interfaces.RecognitionCallback
  */
 
 class RecognitionManager(private val context: Context
-                         , private val keyWords: String
+                         , private val keyWords: ArrayList<String>
                          , private val callback: RecognitionCallback? = null
+                         , private val isCommand: Boolean = false
 ) : RecognitionListener {
 
     var isActive: Boolean = false
@@ -39,7 +40,6 @@ class RecognitionManager(private val context: Context
             speechRecog = SpeechRecognizer.createSpeechRecognizer(context)
             speechRecog?.setRecognitionListener(this)
 
-            //Cuando creamos el callback nos aseguramos de setear el estado del speech recognizer
             callback?.onPrepared(
                     if (null != speechRecog) RecognitionStatus.SUCCESS
                     else RecognitionStatus.FAILURE
@@ -50,7 +50,6 @@ class RecognitionManager(private val context: Context
     }
 
     fun startRecognition() {
-        //Toast.makeText(context, "start recognition", Toast.LENGTH_SHORT).show()
         if (!isListening) {
             isListening = true
             speechRecog?.startListening(recognizerIntent)
@@ -59,7 +58,6 @@ class RecognitionManager(private val context: Context
     }
 
     fun cancelRecognition() {
-        var toastMsg: Toast
         Toast.makeText(context, "Cancel recognition", Toast.LENGTH_SHORT).show()
         //Timber.i(this.toString() + " - cancelRecognition")
         speechRecog?.cancel()
@@ -88,7 +86,6 @@ class RecognitionManager(private val context: Context
     }
 
     override fun onEvent(EventType: Int, params: Bundle) {
-
         callback?.onEvent(EventType, params)
     }
 
@@ -145,17 +142,26 @@ class RecognitionManager(private val context: Context
                 isActive = false
                 callback?.onResults(matches, scores)
             } else {
-                matches.forEach {
-                    if (it.toLowerCase().contains(keyWords)) {
-                        isActive = true
-                        callback?.onKeywordDetected(it)
-                        return@forEach
-                    }
+                if (isCommand) {
+                    if (keyMatcher(matches[0]).size > 0) callback?.onKeywordDetected(keyMatcher(matches[0]))
+                } else {
+                    if (keyMatcher(matches[0]).size > 0) callback?.onKeywordDetected(matches)
+
                 }
             }
         }
         isListening = false
         startRecognition()
+    }
+
+    fun keyMatcher(textToMatch: String): ArrayList<String> {
+        var matches = ArrayList<String>()
+
+        keyWords.forEach {
+            if (textToMatch.toLowerCase().contains(it)) matches.add(it)
+        }
+
+        return matches
     }
 
     override fun onPartialResults(results: Bundle) {
@@ -169,7 +175,6 @@ class RecognitionManager(private val context: Context
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, flag, 0)
         audioManager.adjustStreamVolume(AudioManager.STREAM_SYSTEM, flag, 0)
     }
-
 
     private fun setRecognizerPreferences() {
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH)

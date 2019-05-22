@@ -1,12 +1,16 @@
 package vocs.nlstr
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.speech.SpeechRecognizer
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import android.widget.ToggleButton
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -30,6 +34,8 @@ class Ini : AppCompatActivity(), RecognitionCallback {
 
     lateinit var reconManager: RecognitionManager
 
+    var isCommand: Boolean = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +47,10 @@ class Ini : AppCompatActivity(), RecognitionCallback {
         barPrgSpeech.visibility = View.INVISIBLE
         barPrgSpeech.max = 10
 
-        reconManager = RecognitionManager(this, "bravo", this)
+
+        var matches = ArrayList<String>()
+        matches.add("bravo")
+        reconManager = RecognitionManager(this, matches, this, isCommand)
     }
 
     //------------METODOS HEREDADOS---------------------//
@@ -83,16 +92,16 @@ class Ini : AppCompatActivity(), RecognitionCallback {
         startRecognition()
     }
 
-    override fun onKeywordDetected(keyWord: String) {
+    /*override fun onKeywordDetected(keys: ArrayList<String>) {
         txtMulSpeech.text = "Keyword Detected"
-    }
+    }*/
 
     override fun onReadyForSpeech(params: Bundle) {
-        Toast.makeText(this, "onReadyForSpeech", Toast.LENGTH_LONG)
+        Log.i("Recognition","onReadyForSpeech")
     }
 
     override fun onBufferReceived(buffer: ByteArray) {
-        Toast.makeText(this, "onReadyForSpeech", Toast.LENGTH_LONG)
+        Log.i("Recognition","onBufferReceived")
     }
 
     //Usaremos el Progress Bar como indicador de dB de voz
@@ -102,47 +111,44 @@ class Ini : AppCompatActivity(), RecognitionCallback {
 
     override fun onPartialResults(results: List<String>) {
         val text = results.joinToString(separator = "\n")
-        Toast.makeText(this, "onResults : %s", Toast.LENGTH_LONG)
+        Log.i("Recognition","onPartialResult")
     }
-
 
     override fun onResults(results: List<String>, scores: FloatArray?) {
         val text = results.joinToString(separator = "\n")
-        Toast.makeText(this, "onResults : %s", Toast.LENGTH_LONG)
+        Log.i("Recognition","onResult")
     }
 
     override fun onEvent(eventType: Int, params: Bundle) {
-        Toast.makeText(this, "onEvent", Toast.LENGTH_LONG)
+        Log.i("Recognition","onEvent")
     }
 
     override fun onBeginningOfSpeech() {
         barPrgSpeech.isIndeterminate = false
-        Toast.makeText(this, "onBeginning", Toast.LENGTH_LONG)
+        Log.i("Recognition","onBeginningOfSpeech")
     }
 
     override fun onEndOfSpeech() {
-        Toast.makeText(this, "onEnding : %s", Toast.LENGTH_LONG)
+        Log.i("Recognition","onEndOfSpeech")
     }
 
     override fun onError(errorCode: Int) {
         val errorMessage = getErrorText(errorCode)
-        Toast.makeText(this, "onError - ${getErrorText(errorCode)}", Toast.LENGTH_LONG)
-        txtMulSpeech.text = errorMessage
+        Log.i("Recognition","onEndOfSpeech - $errorCode")
+        //txtMulSpeech.text = errorMessage
         btnTglSpeech.isChecked = false
     }
 
-
     //METODOS NO HEREDADOS//
     private fun startRecognition() {
-        Toast.makeText(this, "onStart", Toast.LENGTH_LONG)
+        Log.i("Recognition","startRecognition")
         btnTglSpeech.isChecked = true
         barPrgSpeech.visibility = View.VISIBLE
         reconManager.startRecognition()
-
     }
 
     private fun stopRecognition() {
-        Toast.makeText(this, "onStop", Toast.LENGTH_LONG)
+        Log.i("Recognition","stopRecognition")
         btnTglSpeech.isChecked = false
         barPrgSpeech.visibility = View.INVISIBLE
         barPrgSpeech.isIndeterminate = true
