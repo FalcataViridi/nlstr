@@ -7,9 +7,10 @@ import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.util.Log
 import android.widget.Toast
-import timber.log.Timber
 import vocs.nlstr.interfaces.RecognitionCallback
+import vocs.nlstr.utils.RecognitionStatus
 
 /**
  * Created by Moises on 04/01/2018.
@@ -98,8 +99,10 @@ class RecognitionManager(private val context: Context
     }
 
     override fun onError(errorCode: Int) {
+        Log.e("Recognition", this.toString() + " - onError - $errorCode")
 
-        Timber.e(this.toString() + " - reconManager.onError - $errorCode")
+        Log.i("Recognition","onReadyForSpeech")
+
 
         //Si esta activado definiremos que es un error
         if (isActive) {

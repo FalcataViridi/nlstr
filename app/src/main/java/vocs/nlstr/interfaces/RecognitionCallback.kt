@@ -1,7 +1,7 @@
 package vocs.nlstr.interfaces
 
 import android.os.Bundle
-import vocs.nlstr.servicios.RecognitionStatus
+import vocs.nlstr.utils.RecognitionStatus
 import java.util.ArrayList
 
 /**

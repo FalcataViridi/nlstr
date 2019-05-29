@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">nlstr</string>
     <string name="ok">OK</string>
+
+    <string name="sign_up_title">Sign up on Rentify</string>
+    <string name="sign_up">SignUp</string>
+    <string name="username">Username</string>
+    <string name="name">Full name</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="home">home</string>
+    <string name="detail">detail</string>
 </resources>

@@ -12,26 +12,18 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.ToggleButton
-import butterknife.BindView
-import butterknife.ButterKnife
-import com.afollestad.materialdialogs.MaterialDialog
 import vocs.nlstr.interfaces.RecognitionCallback
 import vocs.nlstr.servicios.RecognitionManager
-import vocs.nlstr.servicios.RecognitionStatus
+import vocs.nlstr.utils.RecognitionStatus
+import java.util.*
 
 class Ini : AppCompatActivity(), RecognitionCallback {
 
     //VARIABLES
     //componentes gráficos
-    @BindView(R.id.txtMulSpeech)
     lateinit var txtMulSpeech: TextView
-
-    @BindView(R.id.barPrgSpeech)
     lateinit var barPrgSpeech: ProgressBar
-
-    @BindView(R.id.btnTglSpeech)
     lateinit var btnTglSpeech: ToggleButton
-
     lateinit var reconManager: RecognitionManager
 
     var isCommand: Boolean = false
@@ -40,8 +32,6 @@ class Ini : AppCompatActivity(), RecognitionCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ini)
-
-        ButterKnife.bind(this)
 
         btnTglSpeech.visibility = View.INVISIBLE
         barPrgSpeech.visibility = View.INVISIBLE
@@ -74,12 +64,6 @@ class Ini : AppCompatActivity(), RecognitionCallback {
             }
 
             RecognitionStatus.FAILURE, RecognitionStatus.UNAVAILABLE -> {
-                MaterialDialog.Builder(this)
-                        .title("No disponible")
-                        .content("Error en su servicio de reconocimiento")
-                        .positiveText(android.R.string.ok)
-                        .show()
-
                 txtMulSpeech.text = "Recognition unavailable"
             }
         }
@@ -113,13 +97,13 @@ class Ini : AppCompatActivity(), RecognitionCallback {
     }
 
     override fun onPartialResults(results: List<String>) {
-        val text = results.joinToString(separator = "\n")
-        Log.i("Recognition","onPartialResult")
+        val text = results[0] + "..." + results[results.size -1]
+        Log.i("Recognition","onPartialResult - $text")
     }
 
     override fun onResults(results: List<String>, scores: FloatArray?) {
-        val text = results.joinToString(separator = "\n")
-        Log.i("Recognition","onResult")
+        val text = results[0] + "..." + results[results.size -1]
+        Log.i("Recognition","onResult - $text")
     }
 
     override fun onEvent(eventType: Int, params: Bundle) {
@@ -137,7 +121,7 @@ class Ini : AppCompatActivity(), RecognitionCallback {
 
     override fun onError(errorCode: Int) {
         val errorMessage = getErrorText(errorCode)
-        Log.i("Recognition","onEndOfSpeech - $errorCode")
+        Log.i("Recognition","onEndOfSpeech - $errorMessage")
         //txtMulSpeech.text = errorMessage
         btnTglSpeech.isChecked = false
     }
@@ -177,7 +161,7 @@ class Ini : AppCompatActivity(), RecognitionCallback {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             101 -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     startRecognition()
                 }
             }
