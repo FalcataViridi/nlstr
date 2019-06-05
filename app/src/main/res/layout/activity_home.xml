@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -22,19 +23,22 @@
         app:mwhWaves="MultiWave" />
 
     <TextView
-        android:textColor="@color/colorAccent"
         android:id="@+id/message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="nada de inicio"
-        app:autoSizeTextType="uniform"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="n"
+        android:textColor="@color/colorAccent"
+        app:autoSizeMaxTextSize="300sp"
         app:autoSizeMinTextSize="12sp"
-        app:autoSizeMaxTextSize="100sp"
         app:autoSizeStepGranularity="2sp"
+        app:autoSizeTextType="uniform"
+        android:gravity="center_horizontal"
+        app:layout_constraintBottom_toBottomOf="@+id/right_fab"
         app:layout_constraintEnd_toStartOf="@+id/right_fab"
         app:layout_constraintStart_toEndOf="@+id/left_fab"
-        app:layout_constraintTop_toTopOf="@+id/left_fab"
-        app:layout_constraintBottom_toBottomOf="@+id/right_fab" />
+        app:layout_constraintTop_toTopOf="@+id/left_fab" />
 
     <FrameLayout
         android:id="@+id/fragContainerHome"
@@ -44,8 +48,10 @@
         android:layout_marginEnd="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/waveHeader" />
+        app:layout_constraintTop_toBottomOf="@+id/waveHeader"
+        app:layout_constraintVertical_bias="0.55" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/left_fab"
@@ -61,7 +67,7 @@
         android:id="@+id/right_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="25dp"
+        android:layout_margin="20dp"
         android:backgroundTint="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
