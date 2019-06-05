@@ -1,77 +1,62 @@
 package vocs.nlstr.views
 
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
+import kotlinx.android.synthetic.main.activity_home.*
 import vocs.nlstr.R
-import vocs.nlstr.interfaces.RecognitionCallback
-import vocs.nlstr.utils.RecognitionStatus
 import vocs.nlstr.utils.inTransaction
+import java.util.ArrayList
 
+class HomeActivity : AppCompatActivity() {
 
-class HomeActivity: AppCompatActivity(), RecognitionCallback  {
-    private val handler: Handler = Handler()
+    var isListening: Boolean = true
+    var isCommand: Boolean = false
+    var matches = ArrayList<String>()
+    var DEFAULT_HEIGHT = 30
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        supportFragmentManager.inTransaction { add(R.id.flContainerHome, HomeFragment()) }
+        supportFragmentManager.inTransaction { add(R.id.fragContainerHome, HomeFragment()) }
+
+        configListeners()
     }
 
-    private fun initView() { }
+    //---------- NO HEREDADOS -------------------//
+    private fun configListeners() {
+        right_fab.setOnClickListener {
 
-    override fun onBackPressed() { super.onBackPressed() }
+        }
 
-    private fun getCurrentFragment(): Fragment {
-        return supportFragmentManager.findFragmentById(R.id.flContainerHome)
+        left_fab.setOnClickListener {
+            //TODO: mostrar icono/info/animacion de reconocimiento en marcha
+            isListening = !isListening
+        }
     }
 
-    override fun onPrepared(status: RecognitionStatus) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    private fun initView() {
+        matches.add("bravo")
     }
 
-    override fun onBeginningOfSpeech() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    fun getCurrentFragment(): Fragment {
+        return supportFragmentManager.findFragmentById(R.id.fragContainerHome)
     }
 
-    override fun onReadyForSpeech(params: Bundle) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    fun startReconAnimation() {
+        waveHeader.run {  }
     }
 
-    override fun onBufferReceived(buffer: ByteArray) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    fun stopReconAnimation() {
+        waveHeader.stop()
     }
 
-    override fun onRmsChanged(rmsdB: Float) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    fun configWavesHeight (height: Int) {
+        waveHeader.waveHeight += 1
 
-    override fun onPartialResults(results: List<String>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
-
-    override fun onResults(results: List<String>, scores: FloatArray?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onError(errorCode: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onEvent(eventType: Int, params: Bundle) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onEndOfSpeech() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
 }
-
-
-
-
 
 

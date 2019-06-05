@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -55,12 +57,10 @@ class RecognitionManager(private val context: Context
             isListening = true
             speechRecog?.startListening(recognizerIntent)
         }
-
     }
 
     fun cancelRecognition() {
-        Toast.makeText(context, "Cancel recognition", Toast.LENGTH_SHORT).show()
-        //Timber.i(this.toString() + " - cancelRecognition")
+        Toast.makeText(context, "Cancelled recognition", Toast.LENGTH_SHORT).show()
         speechRecog?.cancel()
     }
 
@@ -99,7 +99,7 @@ class RecognitionManager(private val context: Context
     }
 
     override fun onError(errorCode: Int) {
-        Log.e("Recognition", this.toString() + " - onError - $errorCode")
+        Log.e("Recognition", "$this - onError - $errorCode")
 
         Log.i("Recognition","onReadyForSpeech")
 
@@ -115,46 +115,38 @@ class RecognitionManager(private val context: Context
         when (errorCode) {
             SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> cancelRecognition()
             SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> {
-                destroyRecognizer()
-                initializeRecognizer()
+                preInitialize()
             }
 
             SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> {
-                destroyRecognizer()
-                initializeRecognizer()
+                preInitialize()
             }
 
             else -> {
             }
         }
-
-        //TODO("Definir como indicar el error")
-        //FIXME: Temporalmente si existe un error se inicia el reconocimiento
-
-        startRecognition()
     }
 
 
     override fun onResults(results: Bundle) {
 
-        val matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+        val resultsArray = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
         val scores = results.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
 
-        if (null != matches) {
+        if (null != resultsArray) {
             if (isActive) {
                 isActive = false
-                callback?.onResults(matches, scores)
+                callback?.onResults(resultsArray, scores)
             } else {
                 if (isCommand) {
-                    if (keyMatcher(matches[0]).size > 0) callback?.onKeywordDetected(keyMatcher(matches[0]))
+                    if (keyMatcher(resultsArray[0]).size > 0) callback?.onKeywordDetected(keyMatcher(resultsArray[0]))
                 } else {
-                    if (keyMatcher(matches[0]).size > 0) callback?.onKeywordDetected(matches)
-
+                    callback?.onResults(resultsArray, scores)
                 }
             }
         }
         isListening = false
-        startRecognition()
+        preInitialize()
     }
 
     fun keyMatcher(textToMatch: String): ArrayList<String> {
@@ -163,14 +155,13 @@ class RecognitionManager(private val context: Context
         keyWords.forEach {
             if (textToMatch.toLowerCase().contains(it)) matches.add(it)
         }
-
         return matches
     }
 
     override fun onPartialResults(results: Bundle) {
-        val matcheS = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+        val matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
 
-        if (isActive && null != matcheS) callback?.onPartialResults(matcheS)
+        if (isActive && null != matches) callback?.onPartialResults(matches)
     }
 
     private fun muteRecognition(isMuted: Boolean) {
@@ -184,5 +175,10 @@ class RecognitionManager(private val context: Context
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, context.packageName)
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
+    }
+
+    private fun preInitialize () {
+        destroyRecognizer()
+        initializeRecognizer()
     }
 }
