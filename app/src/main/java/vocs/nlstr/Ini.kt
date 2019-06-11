@@ -43,7 +43,7 @@ class Ini : AppCompatActivity(), RecognitionCallback {
 
         var matches = ArrayList<String>()
         matches.add("bravo")
-        reconManager = RecognitionManager(this, matches, this, isCommand)
+        //reconManager = RecognitionManager(this, matches, this, isCommand)
     }
 
     //------------METODOS HEREDADOS---------------------//

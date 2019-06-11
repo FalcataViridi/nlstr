@@ -7,6 +7,9 @@ import android.speech.SpeechRecognizer
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,14 +19,19 @@ import vocs.nlstr.R
 import vocs.nlstr.interfaces.RecognitionCallback
 import vocs.nlstr.servicios.RecognitionManager
 import vocs.nlstr.utils.RecognitionStatus
+import vocs.nlstr.utils.TranslationKeys
 import java.util.*
+import android.os.AsyncTask.execute
+import android.R
+
 
 
 class HomeFragment : Fragment(), RecognitionCallback {
 
     var reconManager: RecognitionManager? = null
-    var isResultDone: Boolean = true
-    var hasStarted: Boolean = false
+
+    var acceptedTextToTranslate: String = ""
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_home, container, false)
@@ -37,7 +45,7 @@ class HomeFragment : Fragment(), RecognitionCallback {
 
     override fun onResume() {
         super.onResume()
-        if (!reconManager?.isListening!!) startRecognition()
+        if (!reconManager?.isActive!!) startRecognition()
     }
 
     override fun onDestroy() {
@@ -49,7 +57,6 @@ class HomeFragment : Fragment(), RecognitionCallback {
         when (status) {
             RecognitionStatus.SUCCESS -> {
                 if ((activity as HomeActivity).isListening) {
-                    hasStarted = true
                     startRecognition()
                 } else stopRecognition()
             }
@@ -60,8 +67,9 @@ class HomeFragment : Fragment(), RecognitionCallback {
         }
     }
 
-    override fun onKeywordDetected(keys: ArrayList<String>) {
-        super.onKeywordDetected(keys)
+    override fun onKeywordDetected(key: String) {
+        super.onKeywordDetected(key)
+        activateFunction(key)
     }
 
     override fun onBeginningOfSpeech() {
@@ -70,6 +78,7 @@ class HomeFragment : Fragment(), RecognitionCallback {
 
     override fun onReadyForSpeech(params: Bundle) {
         Log.i("Recognition", "onReadyForSpeech")
+        reconManager!!.keyWords = getKeywords()
     }
 
     override fun onBufferReceived(buffer: ByteArray) {
@@ -86,10 +95,21 @@ class HomeFragment : Fragment(), RecognitionCallback {
     }
 
     override fun onResults(results: List<String>, scores: FloatArray?) {
-        val text = results[0] + "..." + results[results.size - 1]
+        val text = results[0]
         Log.i("Recognition", "onResult - $text")
-        var wholeText = results.joinToString { "$it " }
-        et_up.setText(wholeText)
+
+
+        var textResult = results.joinToString { "$it " }
+        var previousText = acceptedTextToTranslate.plus(" ").plus(textResult)
+        var spannedText = SpannableString(previousText)
+
+        spannedText.setSpan(ForegroundColorSpan(resources.getColor(R.color.colorAccent))
+                , acceptedTextToTranslate.length
+                , previousText.length
+                , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        et_translate.setText(textResult)
+        tv_translate_accepted.text = spannedText
     }
 
     override fun onError(errorCode: Int) {
@@ -116,7 +136,7 @@ class HomeFragment : Fragment(), RecognitionCallback {
         }
     }
 
-    //---------------------NO HEREDADO ----------//
+    //--------------------- NO HEREDADO ---------------//
     private fun configPermission() {
         if (ContextCompat.checkSelfPermission(context!!, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(activity!!, arrayOf(Manifest.permission.RECORD_AUDIO), 101)
@@ -124,7 +144,9 @@ class HomeFragment : Fragment(), RecognitionCallback {
     }
 
     private fun initView() {
-        reconManager = RecognitionManager(context!!, (activity as HomeActivity).matches, this, (activity as HomeActivity).isCommand)
+        et_translate.hint = TranslationKeys.TRADUCIR.name
+        tv_translated.hint = TranslationKeys.TRADUCIDO.name
+        reconManager = RecognitionManager(context!!, this, (activity as HomeActivity).isCommand)
     }
 
     fun startRecognition() {
@@ -136,7 +158,6 @@ class HomeFragment : Fragment(), RecognitionCallback {
     fun stopRecognition() {
         Log.i("Recognition", "stopRecognition")
         reconManager?.stopRecognition()
-        hasStarted = false
     }
 
     private fun getErrorText(errorCode: Int): String {
@@ -153,7 +174,59 @@ class HomeFragment : Fragment(), RecognitionCallback {
             else -> "Error generico"
         }
     }
+
+    private fun getKeywords(): ArrayList<String> {
+        var matches = ArrayList<String>()
+        matches.addAll((activity as HomeActivity).matches)
+        matches.addAll(getTranslationKeys())
+
+        return matches
+    }
+
+    fun getTranslationKeys(): Collection<String> {
+        var matches = ArrayList<String>()
+        matches.add(TranslationKeys.TRADUCIR.name)
+        matches.add(TranslationKeys.TRADUCIDO.name)
+        matches.add(TranslationKeys.ACEPTAR.name)
+        matches.add(TranslationKeys.BORRAR.name)
+
+        return matches
+    }
+
+
+    fun activateFunction(key: String) {
+        when (key) {
+            TranslationKeys.TRADUCIR.name -> translateAction()
+            TranslationKeys.ACEPTAR.name -> acceptAction()
+
+            TranslationKeys.TRADUCIDO.name -> tv_translated.requestFocus()
+
+            TranslationKeys.BORRAR.name -> deleteAction()
+        }
+    }
+
+    private fun deleteAction() {
+        tv_translate_accepted.text = ""
+        acceptedTextToTranslate = ""
+    }
+
+    private fun translateAction() {
+        tv_translate_accepted.requestFocus()
+
+        val googleTranslate = GoogleTranslate()
+// Perform the translation by invoking the execute method, but first save the result in a String.
+// The second parameter is the source language, the third is the terget language
+        val result = googleTranslate.execute("the text to be translated", "en", "de").get()
+
+        //TODO: service call to translation
+    }
+
+    private fun acceptAction() {
+        acceptedTextToTranslate = acceptedTextToTranslate.plus(et_translate.text)
+        tv_translate_accepted.text = acceptedTextToTranslate
+    }
 }
+
 
 
 

@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -19,13 +17,12 @@ import vocs.nlstr.utils.RecognitionStatus
  */
 
 class RecognitionManager(private val context: Context
-                         , private val keyWords: ArrayList<String>
                          , private val callback: RecognitionCallback? = null
                          , private val isCommand: Boolean = false
 ) : RecognitionListener {
 
+    var keyWords = ArrayList<String>()
     var isActive: Boolean = false
-    var isListening: Boolean = false
     var shouldMute: Boolean = false
     var recognizerIntent: Intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
 
@@ -53,8 +50,8 @@ class RecognitionManager(private val context: Context
     }
 
     fun startRecognition() {
-        if (!isListening) {
-            isListening = true
+        if (!isActive) {
+            isActive = true
             speechRecog?.startListening(recognizerIntent)
         }
     }
@@ -109,7 +106,6 @@ class RecognitionManager(private val context: Context
             callback?.onError(errorCode)
         }
         isActive = false
-        isListening = false
 
         //Si no reacciona volvemos a comenzar, eliminamos el recog y lo reiniciamos
         when (errorCode) {
@@ -129,33 +125,25 @@ class RecognitionManager(private val context: Context
 
 
     override fun onResults(results: Bundle) {
-
         val resultsArray = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
         val scores = results.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
+        var key = keyMatcher(resultsArray[0])
 
         if (null != resultsArray) {
             if (isActive) {
-                isActive = false
-                callback?.onResults(resultsArray, scores)
-            } else {
-                if (isCommand) {
-                    if (keyMatcher(resultsArray[0]).size > 0) callback?.onKeywordDetected(keyMatcher(resultsArray[0]))
-                } else {
-                    callback?.onResults(resultsArray, scores)
-                }
+                if ("" != key) callback?.onKeywordDetected(key)
+                else callback?.onResults(resultsArray, scores)
             }
         }
-        isListening = false
+        isActive = false
         preInitialize()
     }
 
-    fun keyMatcher(textToMatch: String): ArrayList<String> {
-        var matches = ArrayList<String>()
-
+    fun keyMatcher(textToMatch: String): String {
         keyWords.forEach {
-            if (textToMatch.toLowerCase().contains(it)) matches.add(it)
+            if (textToMatch.toLowerCase() == it.toLowerCase()) return it
         }
-        return matches
+        return ""
     }
 
     override fun onPartialResults(results: Bundle) {

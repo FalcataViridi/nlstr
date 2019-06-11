@@ -2,7 +2,6 @@ package vocs.nlstr.interfaces
 
 import android.os.Bundle
 import vocs.nlstr.utils.RecognitionStatus
-import java.util.ArrayList
 
 /**
  * Created by Moises on 29/07/2018.
@@ -18,6 +17,6 @@ interface RecognitionCallback {
     fun onError(errorCode: Int)
     fun onEvent(eventType: Int, params: Bundle)
     fun onEndOfSpeech()
-    fun onKeywordDetected(keys: ArrayList<String>) { }
+    fun onKeywordDetected(keys: String) { }
 
 }

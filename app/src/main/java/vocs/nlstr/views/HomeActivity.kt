@@ -3,6 +3,7 @@ package vocs.nlstr.views
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
+import android.view.ViewGroup
 import kotlinx.android.synthetic.main.activity_home.*
 import vocs.nlstr.R
 import vocs.nlstr.utils.inTransaction
@@ -15,15 +16,21 @@ class HomeActivity : AppCompatActivity() {
     var matches = ArrayList<String>()
     var DEFAULT_HEIGHT = 30
 
+    var leftKeyword = "ok"
+    var rightKeyword = "no"
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        supportFragmentManager.inTransaction { add(R.id.fragContainerHome, HomeFragment()) }
 
+        supportFragmentManager.inTransaction { add(R.id.fragContainerHome, HomeFragment()) }
         configListeners()
+        setKeyWords()
     }
+
+
 
     //---------- NO HEREDADOS -------------------//
     private fun configListeners() {
@@ -37,8 +44,12 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    private fun setKeyWords() {
+        matches.add(leftKeyword)
+        matches.add(rightKeyword)
+    }
+
     private fun initView() {
-        matches.add("bravo")
     }
 
     fun getCurrentFragment(): Fragment {
@@ -53,10 +64,16 @@ class HomeActivity : AppCompatActivity() {
         waveHeader.stop()
     }
 
-    fun configWavesHeight (height: Int) {
-        waveHeader.waveHeight += 1
+    fun activateKeyWordAction(keyword: String) {
+        when (keyword) {
+            leftKeyword -> left_fab.isFocused
+            rightKeyword -> right_fab.isFocused
 
+        }
     }
+
+
+
 }
 
 
