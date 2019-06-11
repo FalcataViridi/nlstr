@@ -21,8 +21,6 @@ import vocs.nlstr.servicios.RecognitionManager
 import vocs.nlstr.utils.RecognitionStatus
 import vocs.nlstr.utils.TranslationKeys
 import java.util.*
-import android.os.AsyncTask.execute
-import android.R
 
 
 
@@ -212,12 +210,6 @@ class HomeFragment : Fragment(), RecognitionCallback {
 
     private fun translateAction() {
         tv_translate_accepted.requestFocus()
-
-        val googleTranslate = GoogleTranslate()
-// Perform the translation by invoking the execute method, but first save the result in a String.
-// The second parameter is the source language, the third is the terget language
-        val result = googleTranslate.execute("the text to be translated", "en", "de").get()
-
         //TODO: service call to translation
     }
 
