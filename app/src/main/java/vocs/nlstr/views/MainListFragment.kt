@@ -7,32 +7,35 @@ import android.speech.SpeechRecognizer
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
+import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.android.synthetic.main.fragment_list_main.*
 import vocs.nlstr.R
+import vocs.nlstr.adapters.MainListAdapter
 import vocs.nlstr.interfaces.RecognitionCallback
+import vocs.nlstr.models.MainListItemData
 import vocs.nlstr.servicios.RecognitionManager
+import vocs.nlstr.utils.MainListItemAttributes
+import vocs.nlstr.utils.MainListKeys
 import vocs.nlstr.utils.RecognitionStatus
-import vocs.nlstr.utils.TranslationKeys
 import java.util.*
 
 
+class MainListFragment : Fragment(), RecognitionCallback {
 
-class HomeFragment : Fragment(), RecognitionCallback {
+    lateinit var adapter: MainListAdapter
 
+    var elementChanging = ""
+    var listOfLists = ArrayList<MainListItemData>()
+    var textResult: String = ""
     var reconManager: RecognitionManager? = null
-
-    var acceptedTextToTranslate: String = ""
-
+    var isCreatingNew: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        return inflater.inflate(R.layout.fragment_list_main, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -54,9 +57,8 @@ class HomeFragment : Fragment(), RecognitionCallback {
     override fun onPrepared(status: RecognitionStatus) {
         when (status) {
             RecognitionStatus.SUCCESS -> {
-                if ((activity as HomeActivity).isListening) {
-                    startRecognition()
-                } else stopRecognition()
+                if ((activity as HomeActivity).isListening) startRecognition()
+                else stopRecognition()
             }
 
             RecognitionStatus.FAILURE, RecognitionStatus.UNAVAILABLE -> {
@@ -93,21 +95,21 @@ class HomeFragment : Fragment(), RecognitionCallback {
     }
 
     override fun onResults(results: List<String>, scores: FloatArray?) {
-        val text = results[0]
-        Log.i("Recognition", "onResult - $text")
 
+        textResult = results.joinToString { "$it " }
 
-        var textResult = results.joinToString { "$it " }
-        var previousText = acceptedTextToTranslate.plus(" ").plus(textResult)
-        var spannedText = SpannableString(previousText)
+        updatingItem(textResult)
+    }
 
-        spannedText.setSpan(ForegroundColorSpan(resources.getColor(R.color.colorAccent))
-                , acceptedTextToTranslate.length
-                , previousText.length
-                , Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        et_translate.setText(textResult)
-        tv_translate_accepted.text = spannedText
+    fun updatingItem(text: String) {
+        when (elementChanging) {
+            MainListItemAttributes.TITULO.name ->  adapter.updateingInfo(
+                    0
+                    ,text)
+            MainListItemAttributes.DESCRIPCION.name ->  adapter.updateingInfo(
+                    0
+                    ,text)
+        }
     }
 
     override fun onError(errorCode: Int) {
@@ -142,9 +144,12 @@ class HomeFragment : Fragment(), RecognitionCallback {
     }
 
     private fun initView() {
-        et_translate.hint = TranslationKeys.TRADUCIR.name
-        tv_translated.hint = TranslationKeys.TRADUCIDO.name
         reconManager = RecognitionManager(context!!, this, (activity as HomeActivity).isCommand)
+        listOfLists = getLists()
+        rv_main_list.layoutManager = LinearLayoutManager(context!!)
+
+        adapter = MainListAdapter(listOfLists, context!!)
+        rv_main_list.adapter = adapter
     }
 
     fun startRecognition() {
@@ -176,51 +181,59 @@ class HomeFragment : Fragment(), RecognitionCallback {
     private fun getKeywords(): ArrayList<String> {
         var matches = ArrayList<String>()
         matches.addAll((activity as HomeActivity).matches)
-        matches.addAll(getTranslationKeys())
+        matches.addAll(getMainListKeys())
 
         return matches
     }
 
-    fun getTranslationKeys(): Collection<String> {
+    fun getMainListKeys(): Collection<String> {
         var matches = ArrayList<String>()
-        matches.add(TranslationKeys.TRADUCIR.name)
-        matches.add(TranslationKeys.TRADUCIDO.name)
-        matches.add(TranslationKeys.ACEPTAR.name)
-        matches.add(TranslationKeys.BORRAR.name)
+        matches.add(MainListKeys.ACEPTAR.key)
+        matches.add(MainListKeys.BORRAR.key)
+        matches.add(MainListKeys.CREAR.key)
+        matches.add(MainListKeys.ACEPTAR.key)
 
         return matches
     }
-
 
     fun activateFunction(key: String) {
         when (key) {
-            TranslationKeys.TRADUCIR.name -> translateAction()
-            TranslationKeys.ACEPTAR.name -> acceptAction()
-
-            TranslationKeys.TRADUCIDO.name -> tv_translated.requestFocus()
-
-            TranslationKeys.BORRAR.name -> deleteAction()
+            MainListKeys.CREAR.key -> createItemAction()
+            MainListKeys.ACEPTAR.key -> acceptAction()
         }
     }
 
-    private fun deleteAction() {
-        tv_translate_accepted.text = ""
-        acceptedTextToTranslate = ""
-    }
-
-    private fun translateAction() {
-        tv_translate_accepted.requestFocus()
-        //TODO: service call to translation
-    }
-
     private fun acceptAction() {
-        acceptedTextToTranslate = acceptedTextToTranslate.plus(et_translate.text)
-        tv_translate_accepted.text = acceptedTextToTranslate
+        elementChanging = when (elementChanging) {
+            MainListItemAttributes.TITULO.name -> MainListItemAttributes.DESCRIPCION.name
+            MainListItemAttributes.DESCRIPCION.name -> MainListItemAttributes.STATUS.name
+            MainListItemAttributes.STATUS.name -> MainListItemAttributes.TIPO.name
+
+            else -> MainListItemAttributes.TITULO.name
+        }
+
+        adapter.activateElement(0, elementChanging)
+    }
+
+    private fun createItemAction() {
+        //Si hay creandose alguna lista se borrará
+        if (isCreatingNew) adapter.removeByItem(listOfLists[0])
+        else isCreatingNew = true
+
+        adapter.deactivateView (0)
+        elementChanging = MainListItemAttributes.TITULO.name
+
+        var data = MainListItemData(Date().time, "", "", "")
+        adapter.insert(0, data, elementChanging)
+
+    }
+
+    fun getLists(): ArrayList<MainListItemData> {
+        var lists = ArrayList<MainListItemData>()
+        lists.add(MainListItemData(Date().time, "Item 1", "List compra", "listado de compra"))
+        lists.add(MainListItemData(Date().time, "Item 2", "List TODOs", "List TODO"))
+        lists.add(MainListItemData(Date().time, "Item 3", "Lista Tareas", "Lista Tareas"))
+        lists.add(MainListItemData(Date().time, "Item 4", "Historial", "Historial"))
+        return lists
     }
 }
-
-
-
-
-
-

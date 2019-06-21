@@ -3,7 +3,7 @@ package vocs.nlstr.views
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
-import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
 import kotlinx.android.synthetic.main.activity_home.*
 import vocs.nlstr.R
 import vocs.nlstr.utils.inTransaction
@@ -25,11 +25,10 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home)
 
 
-        supportFragmentManager.inTransaction { add(R.id.fragContainerHome, HomeFragment()) }
+        supportFragmentManager.inTransaction { add(R.id.fragContainerHome, MainListFragment()) }
         configListeners()
         setKeyWords()
     }
-
 
 
     //---------- NO HEREDADOS -------------------//
@@ -57,7 +56,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun startReconAnimation() {
-        waveHeader.run {  }
+        waveHeader.run { }
     }
 
     fun stopReconAnimation() {
@@ -72,8 +71,27 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    fun showMessage(msg: String, isStopRequired: Boolean) {
 
+        tv_message.text = msg
+        left_fab.requestFocus()
 
+        if (!isStopRequired) {
+            var fadeIn = AlphaAnimation(0.0f, 1.0f)
+            var fadeOut = AlphaAnimation(1.0f, 0.0f)
+            tv_message.startAnimation(fadeIn)
+            tv_message.startAnimation(fadeOut)
+            fadeIn.duration = 1200
+            fadeIn.fillAfter = true
+            fadeOut.duration = 1200
+            fadeOut.fillAfter = true
+            fadeOut.startOffset = calculateFadeInOut(msg) + fadeIn.startOffset
+        }
+    }
+
+    fun calculateFadeInOut(msgToShow: String): Long {
+        return ((msgToShow.length * 100) + 300).toLong()
+    }
 }
 
 

@@ -127,7 +127,7 @@ class RecognitionManager(private val context: Context
     override fun onResults(results: Bundle) {
         val resultsArray = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
         val scores = results.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
-        var key = keyMatcher(resultsArray[0])
+        var key = keyMatcher(resultsArray[0]).toLowerCase()
 
         if (null != resultsArray) {
             if (isActive) {
