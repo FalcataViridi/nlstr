@@ -7,6 +7,7 @@ import android.view.animation.AlphaAnimation
 import kotlinx.android.synthetic.main.activity_home.*
 import vocs.nlstr.R
 import vocs.nlstr.utils.inTransaction
+import vocs.nlstr.views.Lists.ShoppingListFragment
 import java.util.ArrayList
 
 class HomeActivity : AppCompatActivity() {
@@ -25,7 +26,7 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home)
 
 
-        supportFragmentManager.inTransaction { add(R.id.fragContainerHome, MainListFragment()) }
+        supportFragmentManager.inTransaction { add(R.id.fragContainerHome, ShoppingListFragment()) }
         configListeners()
         setKeyWords()
     }
