@@ -21,6 +21,7 @@ import vocs.nlstr.servicios.RecognitionManager
 import vocs.nlstr.utils.MainListItemAttributes
 import vocs.nlstr.utils.MainListKeys
 import vocs.nlstr.utils.RecognitionStatus
+import vocs.nlstr.utils.ShoppingListItemAttributes
 import vocs.nlstr.views.HomeActivity
 import java.util.*
 
@@ -205,9 +206,8 @@ class ShoppingListFragment : Fragment(), RecognitionCallback {
 
     private fun acceptAction() {
         elementChanging = when (elementChanging) {
-            MainListItemAttributes.TITULO.name -> MainListItemAttributes.DESCRIPCION.name
-            MainListItemAttributes.DESCRIPCION.name -> MainListItemAttributes.STATUS.name
-            MainListItemAttributes.STATUS.name -> MainListItemAttributes.TIPO.name
+            ShoppingListItemAttributes.TITULO.name -> ShoppingListItemAttributes.DESCRIPCION.name
+            ShoppingListItemAttributes.DESCRIPCION.name -> ShoppingListItemAttributes.STATUS.name
 
             else -> MainListItemAttributes.TITULO.name
         }

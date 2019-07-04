@@ -18,11 +18,17 @@ enum class TranslationKeys(var key: String, var desc: String) {
 enum class MainListKeys(var key: String, var desc: String) {
     CREAR("crear", "acción de crear")
     , BORRAR("borrar", "accion de borrar prueba con descripcion larga")
+    , SIGUIENTE("siguiente", "accion de continuar")
     , ACEPTAR("ok", "accion de aceptar")
 
 }
 
 enum class MainListItemAttributes {
     TITULO, DESCRIPCION, STATUS, TIPO
+
+}
+
+enum class ShoppingListItemAttributes {
+    TITULO, DESCRIPCION, STATUS
 
 }

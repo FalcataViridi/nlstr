@@ -26,7 +26,7 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home)
 
 
-        supportFragmentManager.inTransaction { add(R.id.fragContainerHome, ShoppingListFragment()) }
+        supportFragmentManager.inTransaction { add(R.id.fragContainerHome, MainListFragment()) }
         configListeners()
         setKeyWords()
     }
