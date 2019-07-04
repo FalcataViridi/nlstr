@@ -1,6 +1,8 @@
 package vocs.nlstr.views
 
 import android.Manifest
+import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.speech.SpeechRecognizer
@@ -188,7 +190,7 @@ class MainListFragment : Fragment(), RecognitionCallback {
 
     fun getMainListKeys(): Collection<String> {
         var matches = ArrayList<String>()
-        matches.add(MainListKeys.ACEPTAR.key)
+        matches.add(MainListKeys.SIGUIENTE.key)
         matches.add(MainListKeys.BORRAR.key)
         matches.add(MainListKeys.CREAR.key)
         matches.add(MainListKeys.ACEPTAR.key)
@@ -199,19 +201,23 @@ class MainListFragment : Fragment(), RecognitionCallback {
     fun activateFunction(key: String) {
         when (key) {
             MainListKeys.CREAR.key -> createItemAction()
+            MainListKeys.SIGUIENTE.key -> nextAction()
             MainListKeys.ACEPTAR.key -> acceptAction()
         }
     }
 
     private fun acceptAction() {
+        isCreatingNew = false
+    }
+
+    private fun nextAction() {
         elementChanging = when (elementChanging) {
             MainListItemAttributes.TITULO.name -> MainListItemAttributes.DESCRIPCION.name
             MainListItemAttributes.DESCRIPCION.name -> MainListItemAttributes.STATUS.name
-            MainListItemAttributes.STATUS.name -> MainListItemAttributes.TIPO.name
+            MainListItemAttributes.STATUS.name -> MainListItemAttributes.TITULO.name
 
             else -> MainListItemAttributes.TITULO.name
         }
-
         adapter.activateElement(0, elementChanging)
     }
 
@@ -225,7 +231,6 @@ class MainListFragment : Fragment(), RecognitionCallback {
 
         var data = MainListItemData(Date().time, "", "", "")
         adapter.insert(0, data, elementChanging)
-
     }
 
     fun getLists(): ArrayList<MainListItemData> {
