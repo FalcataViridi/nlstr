@@ -12,7 +12,6 @@ enum class TranslationKeys(var key: String, var desc: String) {
     , TRADUCIDO("traducido", "texto traducido")
     , BORRAR("borrar", "accion de borrar prueba con descripcion larga")
     , ACEPTAR("ok", "accion de aceptar")
-
 }
 
 enum class MainListKeys(var key: String, var desc: String) {
@@ -20,15 +19,13 @@ enum class MainListKeys(var key: String, var desc: String) {
     , BORRAR("borrar", "accion de borrar prueba con descripcion larga")
     , SIGUIENTE("siguiente", "accion de continuar")
     , ACEPTAR("ok", "accion de aceptar")
-
+    , SELECCIONAR("seleccionar", "accion de seleccionar un item de la lista")
 }
 
 enum class MainListItemAttributes {
     TITULO, DESCRIPCION, STATUS, TIPO
-
 }
 
 enum class ShoppingListItemAttributes {
     TITULO, DESCRIPCION, STATUS
-
 }

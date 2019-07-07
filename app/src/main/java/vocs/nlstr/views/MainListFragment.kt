@@ -35,6 +35,7 @@ class MainListFragment : Fragment(), RecognitionCallback {
     var textResult: String = ""
     var reconManager: RecognitionManager? = null
     var isCreatingNew: Boolean = false
+    var selectedItem: Int = -1
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_list_main, container, false)
@@ -203,6 +204,8 @@ class MainListFragment : Fragment(), RecognitionCallback {
             MainListKeys.CREAR.key -> createItemAction()
             MainListKeys.SIGUIENTE.key -> nextAction()
             MainListKeys.ACEPTAR.key -> acceptAction()
+            MainListKeys.SELECCIONAR.key -> acceptAction()
+            MainListKeys.BORRAR.key -> deleteItemAction(selectedItem)
         }
     }
 
@@ -223,7 +226,7 @@ class MainListFragment : Fragment(), RecognitionCallback {
 
     private fun createItemAction() {
         //Si hay creandose alguna lista se borrará
-        if (isCreatingNew) adapter.removeByItem(listOfLists[0])
+        if (isCreatingNew) deleteItemAction(0)
         else isCreatingNew = true
 
         adapter.deactivateView (0)
@@ -231,6 +234,10 @@ class MainListFragment : Fragment(), RecognitionCallback {
 
         var data = MainListItemData(Date().time, "", "", "")
         adapter.insert(0, data, elementChanging)
+    }
+
+    private fun deleteItemAction (position: Int) {
+        adapter.removeByItem(listOfLists[position])
     }
 
     fun getLists(): ArrayList<MainListItemData> {
