@@ -14,6 +14,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import kotlinx.android.synthetic.main.fragment_list_main.*
 import vocs.nlstr.R
 import vocs.nlstr.adapters.MainListAdapter
@@ -237,7 +238,8 @@ class MainListFragment : Fragment(), RecognitionCallback {
     }
 
     private fun deleteItemAction (position: Int) {
-        adapter.removeByItem(listOfLists[position])
+        if (position == -1) Toast.makeText(activity, "Seleccione lista", Toast.LENGTH_LONG).show()
+        else adapter.removeByItem(listOfLists[position])
     }
 
     fun getLists(): ArrayList<MainListItemData> {
