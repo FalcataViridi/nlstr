@@ -196,6 +196,7 @@ class MainListFragment : Fragment(), RecognitionCallback {
         matches.add(MainListKeys.BORRAR.key)
         matches.add(MainListKeys.CREAR.key)
         matches.add(MainListKeys.ACEPTAR.key)
+        matches.add(MainListKeys.SELECCIONAR.key)
 
         return matches
     }
@@ -205,9 +206,13 @@ class MainListFragment : Fragment(), RecognitionCallback {
             MainListKeys.CREAR.key -> createItemAction()
             MainListKeys.SIGUIENTE.key -> nextAction()
             MainListKeys.ACEPTAR.key -> acceptAction()
-            MainListKeys.SELECCIONAR.key -> acceptAction()
+            MainListKeys.SELECCIONAR.key -> selectAction()
             MainListKeys.BORRAR.key -> deleteItemAction(selectedItem)
         }
+    }
+
+    private fun selectAction() {
+        adapter.selectItem(2)
     }
 
     private fun acceptAction() {

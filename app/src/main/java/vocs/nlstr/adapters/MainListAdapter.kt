@@ -1,8 +1,8 @@
 package vocs.nlstr.adapters
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Parcel
-import android.os.Parcelable
+import android.support.v7.view.menu.MenuView
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -17,12 +17,14 @@ class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Conte
     : RecyclerView.Adapter<ViewHolderMainList>() {
 
 
+    @SuppressLint("ResourceAsColor")
     override fun onBindViewHolder(holder: ViewHolderMainList, position: Int) {
         holder?.bindItems(items[position])
     }
 
     var elementChanging = ""
     var newText = ""
+    var positionSelected = -1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderMainList {
         return ViewHolderMainList(LayoutInflater.from(context).inflate(R.layout.item_list_main, parent, false))
@@ -37,7 +39,11 @@ class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Conte
         holder.deactivating()
 
         if (payloads.isEmpty()) {
+            holder.itemView.requestFocus()
+
+            if (positionSelected == position) holder.activateRow()
             onBindViewHolder(holder, position)
+
         } else {
             when (payloads[0]) {
                 TITULO.name -> {
@@ -70,6 +76,7 @@ class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Conte
     fun insert(position: Int, item: MainListItemData, element: String) {
         items.add(position, item)
         elementChanging = element
+        positionSelected = position
 
         notifyItemInserted(position)
     }
@@ -83,7 +90,7 @@ class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Conte
         notifyItemChanged(position, elementChanging)
     }
 
-    fun activateElement (position: Int, element: String) {
+    fun activateElement(position: Int, element: String) {
         elementChanging = element
         notifyItemChanged(position, elementChanging)
     }
@@ -96,6 +103,11 @@ class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Conte
 
     fun removeByPosition(position: Int) {
         notifyItemRemoved(position)
+    }
+
+    fun selectItem(position: Int) {
+        positionSelected = position
+        notifyItemChanged(position)
     }
 }
 
@@ -112,6 +124,14 @@ class ViewHolderMainList(view: View) : RecyclerView.ViewHolder(view) {
         itemView.tv_desc.isActivated = false
         itemView.userImg.isActivated = false
         itemView.iv_status.isActivated = false
+    }
+
+    fun activateRow() {
+        itemView.singleRow.isSelected = true
+        itemView.tv_name.isSelected = false
+        itemView.tv_desc.isSelected = false
+        itemView.userImg.isSelected = false
+        itemView.iv_status.isSelected = false
     }
 
 }

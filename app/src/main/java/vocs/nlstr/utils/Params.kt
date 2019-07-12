@@ -19,7 +19,7 @@ enum class MainListKeys(var key: String, var desc: String) {
     , BORRAR("borrar", "accion de borrar prueba con descripcion larga")
     , SIGUIENTE("siguiente", "accion de continuar")
     , ACEPTAR("ok", "accion de aceptar")
-    , SELECCIONAR("seleccionar", "accion de seleccionar un item de la lista")
+    , SELECCIONAR("perro", "accion de seleccionar un item de la lista")
 }
 
 enum class MainListItemAttributes {
