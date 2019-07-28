@@ -1,8 +1,6 @@
 package vocs.nlstr.views
 
 import android.Manifest
-import android.arch.lifecycle.ViewModelProviders
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.speech.SpeechRecognizer
@@ -25,6 +23,7 @@ import vocs.nlstr.utils.MainListItemAttributes
 import vocs.nlstr.utils.MainListKeys
 import vocs.nlstr.utils.RecognitionStatus
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainListFragment : Fragment(), RecognitionCallback {
@@ -33,10 +32,12 @@ class MainListFragment : Fragment(), RecognitionCallback {
 
     var elementChanging = ""
     var listOfLists = ArrayList<MainListItemData>()
+    var listOfListsSelected = ArrayList<MainListItemData>()
     var textResult: String = ""
     var reconManager: RecognitionManager? = null
-    var isCreatingNew: Boolean = false
-    var selectedItem: Int = -1
+    var isCreatingNew = false
+    var isSelecting = false
+    var selectedItems = ArrayList<Int>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_list_main, container, false)
@@ -102,17 +103,27 @@ class MainListFragment : Fragment(), RecognitionCallback {
 
         textResult = results.joinToString { "$it " }
 
-        updatingItem(textResult)
+        if (isSelecting) {
+            listOfListsSelected.clear()
+            var index = 0
+            listOfLists.forEach {
+                if (it.name.toLowerCase().contains(textResult.trim())) {
+                    listOfListsSelected.add(listOfLists[index])
+                }
+                index++
+            }
+            adapter.selectItems(listOfListsSelected)
+        } else if (isCreatingNew) updatingItem(textResult)
     }
 
     fun updatingItem(text: String) {
         when (elementChanging) {
-            MainListItemAttributes.TITULO.name ->  adapter.updateingInfo(
+            MainListItemAttributes.TITULO.name -> adapter.updateingInfo(
                     0
-                    ,text)
-            MainListItemAttributes.DESCRIPCION.name ->  adapter.updateingInfo(
+                    , text)
+            MainListItemAttributes.DESCRIPCION.name -> adapter.updateingInfo(
                     0
-                    ,text)
+                    , text)
         }
     }
 
@@ -207,19 +218,44 @@ class MainListFragment : Fragment(), RecognitionCallback {
             MainListKeys.SIGUIENTE.key -> nextAction()
             MainListKeys.ACEPTAR.key -> acceptAction()
             MainListKeys.SELECCIONAR.key -> selectAction()
-            MainListKeys.BORRAR.key -> deleteItemAction(selectedItem)
+            MainListKeys.BORRAR.key -> deleteItemAction(selectedItems)
         }
     }
 
     private fun selectAction() {
-        adapter.selectItem(2)
-    }
+        (activity as HomeActivity).showMessage("Seleccionando")
 
-    private fun acceptAction() {
+        addAllListToSelected(listOfLists)
+
+        adapter.selectItems(listOfLists)
+
+        isSelecting = true
         isCreatingNew = false
     }
 
+    private fun addAllListToSelected(listComplete: ArrayList<MainListItemData>) {
+        var index = 0
+        listComplete.forEach {
+            selectedItems.add(index++)
+        }
+    }
+
+    private fun acceptAction() {
+        (activity as HomeActivity).showMessage("Seleccionado?")
+
+        isCreatingNew = false
+        if (isSelecting) {
+            if (selectedItems.size > 1) Toast.makeText(activity, "Seleccione una sola lista", Toast.LENGTH_LONG).show()
+            else if (selectedItems.isEmpty()) Toast.makeText(activity, "Seleccione una lista", Toast.LENGTH_LONG).show()
+
+            //TODO: definir la seleccion de una lista. Se debe implementar navegacion a lista cn el else
+        }
+
+    }
+
     private fun nextAction() {
+        (activity as HomeActivity).showMessage("Siguiente elemento")
+
         elementChanging = when (elementChanging) {
             MainListItemAttributes.TITULO.name -> MainListItemAttributes.DESCRIPCION.name
             MainListItemAttributes.DESCRIPCION.name -> MainListItemAttributes.STATUS.name
@@ -232,27 +268,52 @@ class MainListFragment : Fragment(), RecognitionCallback {
 
     private fun createItemAction() {
         //Si hay creandose alguna lista se borrará
-        if (isCreatingNew) deleteItemAction(0)
-        else isCreatingNew = true
+        rv_main_list.scrollToPosition(0)
 
-        adapter.deactivateView (0)
+        (activity as HomeActivity).showMessage("Creando")
+
+        if (isCreatingNew) {
+            selectedItems.clear()
+            selectedItems.add(0)
+            deleteItemAction(selectedItems)
+        } else {
+            isCreatingNew = true
+            isSelecting = false
+        }
+
+        adapter.deactivateView(0)
         elementChanging = MainListItemAttributes.TITULO.name
 
         var data = MainListItemData(Date().time, "", "", "")
         adapter.insert(0, data, elementChanging)
     }
 
-    private fun deleteItemAction (position: Int) {
-        if (position == -1) Toast.makeText(activity, "Seleccione lista", Toast.LENGTH_LONG).show()
-        else adapter.removeByItem(listOfLists[position])
+    private fun deleteItemAction(positions: ArrayList<Int>) {
+        (activity as HomeActivity).showMessage("Borrando...")
+
+        if (positions.isEmpty()) Toast.makeText(activity, "Seleccione lista", Toast.LENGTH_LONG).show()
+        else {
+            listOfLists.forEach {
+                if (selectedItems.contains(it.id.toInt())) {
+                    adapter.removeByItem(it)
+                }
+            }
+        }
     }
 
     fun getLists(): ArrayList<MainListItemData> {
         var lists = ArrayList<MainListItemData>()
         lists.add(MainListItemData(Date().time, "Item 1", "List compra", "listado de compra"))
-        lists.add(MainListItemData(Date().time, "Item 2", "List TODOs", "List TODO"))
+        lists.add(MainListItemData(Date().time, "Perro canibal", "List TODOs", "List TODO"))
         lists.add(MainListItemData(Date().time, "Item 3", "Lista Tareas", "Lista Tareas"))
         lists.add(MainListItemData(Date().time, "Item 4", "Historial", "Historial"))
+        lists.add(MainListItemData(Date().time, "Item 5", "Historial", "Historial"))
+        lists.add(MainListItemData(Date().time, "Perro listo", "Historial", "Historial"))
+        lists.add(MainListItemData(Date().time, "Item 7", "Historial", "Historial"))
+        lists.add(MainListItemData(Date().time, "Item 8", "Historial", "Historial"))
+        lists.add(MainListItemData(Date().time, "Perro rojo", "Historial", "Historial"))
+        lists.add(MainListItemData(Date().time, "Item 11", "Historial", "Historial"))
+        lists.add(MainListItemData(Date().time, "Item 15", "Historial", "Historial"))
         return lists
     }
 }

@@ -1,8 +1,6 @@
 package vocs.nlstr.adapters
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.support.v7.view.menu.MenuView
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -16,23 +14,19 @@ import vocs.nlstr.utils.MainListItemAttributes.TITULO
 class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Context)
     : RecyclerView.Adapter<ViewHolderMainList>() {
 
-
-    @SuppressLint("ResourceAsColor")
     override fun onBindViewHolder(holder: ViewHolderMainList, position: Int) {
         holder?.bindItems(items[position])
     }
 
     var elementChanging = ""
     var newText = ""
-    var positionSelected = -1
+    var itemsSelected = ArrayList<MainListItemData>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderMainList {
         return ViewHolderMainList(LayoutInflater.from(context).inflate(R.layout.item_list_main, parent, false))
     }
 
-    override fun getItemCount(): Int {
-        return items.size
-    }
+    override fun getItemCount(): Int { return items.size }
 
     override fun onBindViewHolder(holder: ViewHolderMainList, position: Int, payloads: MutableList<Any>) {
 
@@ -41,18 +35,24 @@ class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Conte
         if (payloads.isEmpty()) {
             holder.itemView.requestFocus()
 
-            if (positionSelected == position) holder.activateRow()
+            if (itemsSelected.contains(items[position])){
+              holder.activateRow()
+            } else {
+                holder.deactivating()
+                holder.deactivateRow()
+            }
             onBindViewHolder(holder, position)
+
 
         } else {
             when (payloads[0]) {
                 TITULO.name -> {
-                    holder.itemView.tv_name.isActivated = true
+                    holder.activateElementName()
                     items[position].name = newText
                 }
 
                 DESCRIPCION.name -> {
-                    holder.itemView.tv_desc.isActivated = true
+                    holder.activateElementDesc()
                     items[position].description = newText
                 }
 
@@ -76,7 +76,10 @@ class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Conte
     fun insert(position: Int, item: MainListItemData, element: String) {
         items.add(position, item)
         elementChanging = element
-        positionSelected = position
+        itemsSelected.clear()
+        itemsSelected.add(items[position])
+
+        deactivateUnselectedRows()
 
         notifyItemInserted(position)
     }
@@ -105,9 +108,22 @@ class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Conte
         notifyItemRemoved(position)
     }
 
-    fun selectItem(position: Int) {
+    /*fun selectItem(position: Int) {
         positionSelected = position
-        notifyItemChanged(position)
+        deactivateUnselectedRows()
+    }*/
+
+    fun selectItems(itemsSelected: ArrayList<MainListItemData>) {
+        this.itemsSelected.clear()
+        this.itemsSelected.addAll(itemsSelected)
+        deactivateUnselectedRows()
+    }
+
+    private fun deactivateUnselectedRows() {
+        var index = 0
+        items.forEach { row ->
+            notifyItemChanged(index++)
+        }
     }
 }
 
@@ -120,6 +136,7 @@ class ViewHolderMainList(view: View) : RecyclerView.ViewHolder(view) {
 
     fun deactivating() {
         itemView.isActivated = false
+        itemView.clearFocus()
         itemView.tv_name.isActivated = false
         itemView.tv_desc.isActivated = false
         itemView.userImg.isActivated = false
@@ -127,11 +144,44 @@ class ViewHolderMainList(view: View) : RecyclerView.ViewHolder(view) {
     }
 
     fun activateRow() {
+        itemView.requestFocus()
         itemView.singleRow.isSelected = true
         itemView.tv_name.isSelected = false
         itemView.tv_desc.isSelected = false
         itemView.userImg.isSelected = false
         itemView.iv_status.isSelected = false
+    }
+
+    fun deactivateRow() {
+        itemView.clearFocus()
+
+        itemView.singleRow.isSelected = false
+    }
+
+    fun activateElementName() {
+        itemView.tv_name.isActivated = true
+        itemView.tv_desc.clearFocus()
+        itemView.userImg.clearFocus()
+        itemView.iv_status.clearFocus()
+    }
+
+    fun activateElementDesc() {
+        itemView.tv_name.clearFocus()
+        itemView.tv_desc.isActivated = true
+        itemView.userImg.clearFocus()
+        itemView.iv_status.clearFocus()
+    }
+    fun activateElementUserImg() {
+        itemView.tv_name.clearFocus()
+        itemView.tv_desc.clearFocus()
+        itemView.userImg.isActivated = true
+        itemView.iv_status.clearFocus()
+    }
+    fun activateElementStatus() {
+        itemView.tv_name.clearFocus()
+        itemView.tv_desc.clearFocus()
+        itemView.userImg.clearFocus()
+        itemView.iv_status.isActivated = true
     }
 
 }

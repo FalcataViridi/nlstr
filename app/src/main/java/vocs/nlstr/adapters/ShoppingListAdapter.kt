@@ -1,22 +1,18 @@
 package vocs.nlstr.adapters
 
 import android.content.Context
-import android.os.Parcel
-import android.os.Parcelable
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.item_list_main.view.*
 import vocs.nlstr.R
-import vocs.nlstr.models.MainListItemData
 import vocs.nlstr.models.ShoppingListItemData
 import vocs.nlstr.utils.MainListItemAttributes.DESCRIPCION
 import vocs.nlstr.utils.MainListItemAttributes.TITULO
 
 class ShoppingListAdapter(val items: ArrayList<ShoppingListItemData>, val context: Context)
     : RecyclerView.Adapter<ViewHolderShoppingList>() {
-
 
     override fun onBindViewHolder(holder: ViewHolderShoppingList, position: Int) {
         holder?.bindItems(items[position])
