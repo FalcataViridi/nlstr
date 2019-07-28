@@ -25,7 +25,6 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-
         supportFragmentManager.inTransaction { add(R.id.fragContainerHome, MainListFragment()) }
         configListeners()
         setKeyWords()
@@ -72,18 +71,19 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    fun showMessage(msg: String, isStopRequired: Boolean) {
+    fun showMessage(msg: String, isStopRequired: Boolean = false) {
 
         tv_message.text = msg
         left_fab.requestFocus()
 
+        var fadeIn = AlphaAnimation(0.0f, 1.0f)
+        fadeIn.duration = 1200
+        fadeIn.fillAfter = true
+
         if (!isStopRequired) {
-            var fadeIn = AlphaAnimation(0.0f, 1.0f)
             var fadeOut = AlphaAnimation(1.0f, 0.0f)
             tv_message.startAnimation(fadeIn)
             tv_message.startAnimation(fadeOut)
-            fadeIn.duration = 1200
-            fadeIn.fillAfter = true
             fadeOut.duration = 1200
             fadeOut.fillAfter = true
             fadeOut.startOffset = calculateFadeInOut(msg) + fadeIn.startOffset
