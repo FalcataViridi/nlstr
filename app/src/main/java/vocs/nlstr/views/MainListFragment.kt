@@ -218,7 +218,7 @@ class MainListFragment : Fragment(), RecognitionCallback {
             MainListKeys.SIGUIENTE.key -> nextAction()
             MainListKeys.ACEPTAR.key -> acceptAction()
             MainListKeys.SELECCIONAR.key -> selectAction()
-            MainListKeys.BORRAR.key -> deleteItemAction(selectedItems)
+            MainListKeys.BORRAR.key -> deleteItemAction(listOfListsSelected)
         }
     }
 
@@ -273,9 +273,9 @@ class MainListFragment : Fragment(), RecognitionCallback {
         (activity as HomeActivity).showMessage("Creando")
 
         if (isCreatingNew) {
-            selectedItems.clear()
-            selectedItems.add(0)
-            deleteItemAction(selectedItems)
+            listOfListsSelected.clear()
+            listOfListsSelected.add(MainListItemData(Date().time, "", "", "", ""))
+            deleteItemAction(listOfListsSelected)
         } else {
             isCreatingNew = true
             isSelecting = false
@@ -288,15 +288,13 @@ class MainListFragment : Fragment(), RecognitionCallback {
         adapter.insert(0, data, elementChanging)
     }
 
-    private fun deleteItemAction(positions: ArrayList<Int>) {
+    private fun deleteItemAction(listOfSelected: ArrayList<MainListItemData>) {
         (activity as HomeActivity).showMessage("Borrando...")
 
-        if (positions.isEmpty()) Toast.makeText(activity, "Seleccione lista", Toast.LENGTH_LONG).show()
+        if (listOfSelected.isEmpty()) Toast.makeText(activity, "Seleccione lista", Toast.LENGTH_LONG).show()
         else {
-            listOfLists.forEach {
-                if (selectedItems.contains(it.id.toInt())) {
-                    adapter.removeByItem(it)
-                }
+            listOfListsSelected.forEach {
+                adapter.removeByItem(it)
             }
         }
     }

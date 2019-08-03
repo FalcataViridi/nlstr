@@ -154,7 +154,6 @@ class ViewHolderMainList(view: View) : RecyclerView.ViewHolder(view) {
 
     fun deactivateRow() {
         itemView.clearFocus()
-
         itemView.singleRow.isSelected = false
     }
 
