@@ -1,14 +1,19 @@
 package vocs.nlstr.views
 
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import android.view.animation.AlphaAnimation
+import android.view.animation.AnimationUtils.loadAnimation
 import kotlinx.android.synthetic.main.activity_home.*
 import vocs.nlstr.R
+import vocs.nlstr.utils.AnimationEffectTypes
+import vocs.nlstr.utils.InterpolatorBounceUtil
 import vocs.nlstr.utils.inTransaction
-import vocs.nlstr.views.Lists.ShoppingListFragment
-import java.util.ArrayList
+import java.util.*
+
 
 class HomeActivity : AppCompatActivity() {
 
@@ -30,17 +35,22 @@ class HomeActivity : AppCompatActivity() {
         setKeyWords()
     }
 
-
     //---------- NO HEREDADOS -------------------//
     private fun configListeners() {
-        right_fab.setOnClickListener {
-
-        }
-
         left_fab.setOnClickListener {
+            AnimationEffect(it, AnimationEffectTypes.BUBBLE)
             //TODO: mostrar icono/info/animacion de reconocimiento en marcha
             isListening = !isListening
+
+            AnimationEffect(waveHeader, AnimationEffectTypes.SINK)
         }
+
+        right_fab.setOnClickListener {
+            AnimationEffect(it, AnimationEffectTypes.BUBBLE)
+
+            showCommands(matches)
+        }
+
     }
 
     private fun setKeyWords() {
@@ -92,6 +102,28 @@ class HomeActivity : AppCompatActivity() {
 
     fun calculateFadeInOut(msgToShow: String): Long {
         return ((msgToShow.length * 100) + 300).toLong()
+    }
+
+    fun AnimationEffect(view: View, animationEffect: AnimationEffectTypes) {
+        when (animationEffect) {
+            AnimationEffectTypes.BUBBLE -> {
+                val bubbleAnim = loadAnimation(this, R.anim.bounce)
+                bubbleAnim.interpolator = InterpolatorBounceUtil(AnimationEffectTypes.BUBBLE)
+                view.startAnimation(bubbleAnim)
+            }
+
+            AnimationEffectTypes.SINK -> {
+                val anim = ValueAnimator.ofInt(view.measuredHeight, 900)
+                anim.addUpdateListener { valueAnimator ->
+                    val sinkAnim = valueAnimator.animatedValue as Int
+                    val layoutParams = view.layoutParams
+                    layoutParams.height = sinkAnim
+                    view.layoutParams = layoutParams
+                }
+                anim.duration = 1500
+                anim.start()
+            }
+        }
     }
 }
 

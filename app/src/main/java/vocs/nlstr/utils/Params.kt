@@ -29,3 +29,11 @@ enum class MainListItemAttributes {
 enum class ShoppingListItemAttributes {
     TITULO, DESCRIPCION, STATUS
 }
+
+enum class BubbleEffectTypes {
+    SLOW, MEDIUM, FAST
+}
+
+enum class AnimationEffectTypes {
+    BUBBLE, SINK
+}

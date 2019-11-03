@@ -4,7 +4,6 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
-import vocs.nlstr.servicios.RecognitionManager
 
 inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> FragmentTransaction) {
     val fragmentTransaction = beginTransaction()
@@ -20,3 +19,5 @@ fun AppCompatActivity.replaceFragment(fragment: Fragment, frameId: Int) {
 fun AppCompatActivity.addFragment(fragment: Fragment, frameId: Int){
     supportFragmentManager.inTransaction { add(frameId, fragment) }
 }
+
+
