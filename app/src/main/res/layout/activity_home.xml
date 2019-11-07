@@ -16,11 +16,11 @@
         app:layout_constraintTop_toTopOf="parent"
         app:mwhCloseColor="@color/colorPrimary"
         app:mwhColorAlpha="0.5"
-        app:mwhGradientAngle="45"
+        app:mwhGradientAngle="30"
         app:mwhProgress="1"
         app:mwhStartColor="@color/colorPrimaryDark"
-        app:mwhVelocity="5"
-        app:mwhWaveHeight="30dp"
+        app:mwhVelocity="3"
+        app:mwhWaveHeight="15dp"
         app:mwhWaves="MultiWave" />
 
     <TextView
@@ -41,18 +41,21 @@
         app:layout_constraintStart_toEndOf="@+id/left_fab"
         app:layout_constraintTop_toTopOf="@+id/left_fab" />
 
+
+
     <FrameLayout
         android:id="@+id/fragContainerHome"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="397dp"
+        android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginTop="-20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/waveHeader"
-        app:layout_constraintVertical_bias="0.55" />
+        app:layout_constraintVertical_bias="0.23" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/left_fab"

@@ -25,7 +25,6 @@ class HomeActivity : AppCompatActivity() {
     var leftKeyword = "ok"
     var rightKeyword = "no"
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
@@ -42,7 +41,7 @@ class HomeActivity : AppCompatActivity() {
             //TODO: mostrar icono/info/animacion de reconocimiento en marcha
             isListening = !isListening
 
-            AnimationEffect(waveHeader, AnimationEffectTypes.SINK)
+            AnimationEffect(waveHeader, AnimationEffectTypes.BUBBLE)
         }
 
         right_fab.setOnClickListener {
@@ -61,7 +60,7 @@ class HomeActivity : AppCompatActivity() {
     private fun initView() {
     }
 
-    fun getCurrentFragment(): Fragment {
+    fun getCurrentFragment(): Fragment? {
         return supportFragmentManager.findFragmentById(R.id.fragContainerHome)
     }
 
@@ -77,7 +76,6 @@ class HomeActivity : AppCompatActivity() {
         when (keyword) {
             leftKeyword -> left_fab.isFocused
             rightKeyword -> right_fab.isFocused
-
         }
     }
 
@@ -113,18 +111,28 @@ class HomeActivity : AppCompatActivity() {
             }
 
             AnimationEffectTypes.SINK -> {
-                val anim = ValueAnimator.ofInt(view.measuredHeight, 900)
+                val anim = ValueAnimator.ofInt(view.measuredHeight, 1200)
                 anim.addUpdateListener { valueAnimator ->
                     val sinkAnim = valueAnimator.animatedValue as Int
                     val layoutParams = view.layoutParams
                     layoutParams.height = sinkAnim
                     view.layoutParams = layoutParams
                 }
-                anim.duration = 1500
+                anim.duration = 1000
                 anim.start()
             }
         }
     }
+
+    fun showCommands(commands: ArrayList<String>) {
+        AnimationEffect(waveHeader, AnimationEffectTypes.SINK)
+
+
+
+        //waveHeader.anim
+    }
+
+
 }
 
 
