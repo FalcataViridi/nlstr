@@ -11,5 +11,7 @@ data class ShoppingListItemData(val id: Long
                             , var cantidad: String = ""
                             , val status: String = "")
 
+data class CommandListItemData(val id: Long
+                                , var name: String = "")
 
 

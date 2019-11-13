@@ -127,12 +127,8 @@ class HomeActivity : AppCompatActivity() {
     fun showCommands(commands: ArrayList<String>) {
         AnimationEffect(waveHeader, AnimationEffectTypes.SINK)
 
-
-
-        //waveHeader.anim
+        //lv_commList.
     }
-
-
 }
 
 

@@ -56,6 +56,8 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginLeft="30dp"
         android:layout_below="@+id/singleRow"
         android:background="#f2f2f2" />
 
