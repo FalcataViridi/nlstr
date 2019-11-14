@@ -14,10 +14,6 @@ import vocs.nlstr.utils.MainListItemAttributes.TITULO
 class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Context)
     : RecyclerView.Adapter<ViewHolderMainList>() {
 
-    override fun onBindViewHolder(holder: ViewHolderMainList, position: Int) {
-        holder?.bindItems(items[position])
-    }
-
     var elementChanging = ""
     var newText = ""
     var itemsSelected = ArrayList<MainListItemData>()
@@ -27,6 +23,10 @@ class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Conte
     }
 
     override fun getItemCount(): Int { return items.size }
+    
+    override fun onBindViewHolder(holder: ViewHolderMainList, position: Int) {
+        holder?.bindItems(items[position])
+    }
 
     override fun onBindViewHolder(holder: ViewHolderMainList, position: Int, payloads: MutableList<Any>) {
 

@@ -160,10 +160,9 @@ class MainListFragment : Fragment(), RecognitionCallback {
 
     private fun initView() {
         reconManager = RecognitionManager(context!!, this, (activity as HomeActivity).isCommand)
-        listOfLists = getLists()
         rv_main_list.layoutManager = LinearLayoutManager(context!!)
 
-        adapter = MainListAdapter(listOfLists, context!!)
+        adapter = MainListAdapter( getLists(), context!!)
         rv_main_list.adapter = adapter
     }
 

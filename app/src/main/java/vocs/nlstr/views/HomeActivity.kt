@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.AnimationUtils.loadAnimation
+import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_home.*
 import vocs.nlstr.R
 import vocs.nlstr.utils.AnimationEffectTypes
@@ -49,7 +50,6 @@ class HomeActivity : AppCompatActivity() {
 
             showCommands(matches)
         }
-
     }
 
     private fun setKeyWords() {
@@ -58,6 +58,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun initView() {
+
     }
 
     fun getCurrentFragment(): Fragment? {
@@ -80,7 +81,6 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun showMessage(msg: String, isStopRequired: Boolean = false) {
-
         tv_message.text = msg
         left_fab.requestFocus()
 
@@ -127,7 +127,8 @@ class HomeActivity : AppCompatActivity() {
     fun showCommands(commands: ArrayList<String>) {
         AnimationEffect(waveHeader, AnimationEffectTypes.SINK)
 
-        //lv_commList.
+        var commandAdapter = ArrayAdapter<String>(this, R.layout.item_list_command_simple, commands)
+        lv_commList.adapter = commandAdapter
     }
 }
 
