@@ -160,9 +160,10 @@ class MainListFragment : Fragment(), RecognitionCallback {
 
     private fun initView() {
         reconManager = RecognitionManager(context!!, this, (activity as HomeActivity).isCommand)
+        listOfLists = getLists()
         rv_main_list.layoutManager = LinearLayoutManager(context!!)
 
-        adapter = MainListAdapter( getLists(), context!!)
+        adapter = MainListAdapter(listOfLists, context!!)
         rv_main_list.adapter = adapter
     }
 
@@ -207,6 +208,7 @@ class MainListFragment : Fragment(), RecognitionCallback {
         matches.add(MainListKeys.CREAR.key)
         matches.add(MainListKeys.ACEPTAR.key)
         matches.add(MainListKeys.SELECCIONAR.key)
+        matches.add(MainListKeys.COMANDOS.key)
 
         return matches
     }
@@ -218,6 +220,14 @@ class MainListFragment : Fragment(), RecognitionCallback {
             MainListKeys.ACEPTAR.key -> acceptAction()
             MainListKeys.SELECCIONAR.key -> selectAction()
             MainListKeys.BORRAR.key -> deleteItemAction(listOfListsSelected)
+            MainListKeys.COMANDOS.key -> {
+                var commandList = ArrayList<String>()
+                MainListKeys.values().forEach {
+                    commandList.add(it.key)
+                }
+
+                (activity as HomeActivity).showCommands(commandList)
+            }
         }
     }
 

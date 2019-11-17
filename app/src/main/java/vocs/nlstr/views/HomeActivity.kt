@@ -41,8 +41,9 @@ class HomeActivity : AppCompatActivity() {
             AnimationEffect(it, AnimationEffectTypes.BUBBLE)
             //TODO: mostrar icono/info/animacion de reconocimiento en marcha
             isListening = !isListening
+            hideCommands()
 
-            AnimationEffect(waveHeader, AnimationEffectTypes.BUBBLE)
+
         }
 
         right_fab.setOnClickListener {
@@ -110,8 +111,20 @@ class HomeActivity : AppCompatActivity() {
                 view.startAnimation(bubbleAnim)
             }
 
-            AnimationEffectTypes.SINK -> {
+            AnimationEffectTypes.SINK_DOWN -> {
                 val anim = ValueAnimator.ofInt(view.measuredHeight, 1200)
+                anim.addUpdateListener { valueAnimator ->
+                    val sinkAnim = valueAnimator.animatedValue as Int
+                    val layoutParams = view.layoutParams
+                    layoutParams.height = sinkAnim
+                    view.layoutParams = layoutParams
+                }
+                anim.duration = 1000
+                anim.start()
+            }
+
+            AnimationEffectTypes.SINK_UP -> {
+                val anim = ValueAnimator.ofInt(view.measuredHeight, 300)
                 anim.addUpdateListener { valueAnimator ->
                     val sinkAnim = valueAnimator.animatedValue as Int
                     val layoutParams = view.layoutParams
@@ -125,10 +138,16 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun showCommands(commands: ArrayList<String>) {
-        AnimationEffect(waveHeader, AnimationEffectTypes.SINK)
 
         var commandAdapter = ArrayAdapter<String>(this, R.layout.item_list_command_simple, commands)
         lv_commList.adapter = commandAdapter
+
+        AnimationEffect(waveHeader, AnimationEffectTypes.SINK_DOWN)
+    }
+
+    fun hideCommands() {
+        AnimationEffect(waveHeader, AnimationEffectTypes.SINK_UP)
+        lv_commList.visibility = View.GONE
     }
 }
 

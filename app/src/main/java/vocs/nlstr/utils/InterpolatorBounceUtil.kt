@@ -10,10 +10,6 @@ internal class InterpolatorBounceUtil(type: AnimationEffectTypes) :android.view.
                 mAmplitude = 0.2
                 mFrequency = 25.0
             }
-            AnimationEffectTypes.SINK -> {
-                mAmplitude = 0.2
-                mFrequency = 25.0
-            }
         }
     }
 
