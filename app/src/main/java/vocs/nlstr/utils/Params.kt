@@ -20,7 +20,7 @@ enum class MainListKeys(var key: String, var desc: String) {
     , SIGUIENTE("siguiente", "accion de continuar")
     , ACEPTAR("ok", "accion de aceptar")
     , SELECCIONAR("gato", "accion de seleccionar un item de la lista")
-    , COMANDOS ("comandos", "listado de comandos actualmente disponibles")
+    , COMANDOS ("gusano", "listado de comandos actualmente disponibles")
 }
 
 enum class MainListItemAttributes {
