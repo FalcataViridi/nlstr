@@ -38,6 +38,8 @@ class MainListFragment : Fragment(), RecognitionCallback {
     var isCreatingNew = false
     var isSelecting = false
     var selectedItems = ArrayList<Int>()
+    var currentAction = ""
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_list_main, container, false)
@@ -103,25 +105,30 @@ class MainListFragment : Fragment(), RecognitionCallback {
 
         textResult = results.joinToString { "$it " }
 
-        if (isSelecting) {
-            listOfListsSelected.clear()
-            var index = 0
-            listOfLists.forEach {
-                if (it.name.toLowerCase().contains(textResult.trim())) {
-                    listOfListsSelected.add(listOfLists[index])
+
+        when (currentAction) {
+            MainListKeys.CREAR.key -> updatingItem(textResult)
+
+            MainListKeys.SELECCIONAR.key -> {
+                listOfListsSelected.clear()
+                var index = 0
+                listOfLists.forEach {
+                    if (it.name.toLowerCase().contains(textResult.trim())) {
+                        listOfListsSelected.add(listOfLists[index])
+                    }
+                    index++
                 }
-                index++
+                adapter.selectItems(listOfListsSelected)
             }
-            adapter.selectItems(listOfListsSelected)
-        } else if (isCreatingNew) updatingItem(textResult)
+        }
     }
 
     fun updatingItem(text: String) {
         when (elementChanging) {
-            MainListItemAttributes.TITULO.name -> adapter.updateingInfo(
+            MainListItemAttributes.TITULO.name -> adapter.updateInfo(
                     0
                     , text)
-            MainListItemAttributes.DESCRIPCION.name -> adapter.updateingInfo(
+            MainListItemAttributes.DESCRIPCION.name -> adapter.updateInfo(
                     0
                     , text)
         }
@@ -232,8 +239,9 @@ class MainListFragment : Fragment(), RecognitionCallback {
     }
 
     private fun selectAction() {
-        (activity as HomeActivity).showMessage("Seleccionando")
+        (activity as HomeActivity).showMessage("Seleccionando...", true)
 
+        //TODO borrar este listado tras las pruebas
         addAllListToSelected(listOfLists)
 
         adapter.selectItems(listOfLists)
@@ -263,7 +271,7 @@ class MainListFragment : Fragment(), RecognitionCallback {
     }
 
     private fun nextAction() {
-        (activity as HomeActivity).showMessage("Siguiente elemento")
+        (activity as HomeActivity).showMessage("Siguiente texto")
 
         elementChanging = when (elementChanging) {
             MainListItemAttributes.TITULO.name -> MainListItemAttributes.DESCRIPCION.name
@@ -276,29 +284,30 @@ class MainListFragment : Fragment(), RecognitionCallback {
     }
 
     private fun createItemAction() {
-        //Si hay creandose alguna lista se borrará
         rv_main_list.scrollToPosition(0)
+        when (currentAction) {
+            MainListKeys.CREAR.key -> {
 
-        (activity as HomeActivity).showMessage("Creando")
+                deleteItemAction(listOfListsSelected)
+                listOfListsSelected.clear()
+            }
 
-        if (isCreatingNew) {
-            listOfListsSelected.clear()
-            listOfListsSelected.add(MainListItemData(Date().time, "", "", "", ""))
-            deleteItemAction(listOfListsSelected)
-        } else {
-            isCreatingNew = true
-            isSelecting = false
+            else -> {
+                currentAction = MainListKeys.CREAR.key
+                adapter.deactivateView(0)
+                elementChanging = MainListItemAttributes.TITULO.name
+            }
         }
 
-        adapter.deactivateView(0)
-        elementChanging = MainListItemAttributes.TITULO.name
-
-        var data = MainListItemData(Date().time, "", "", "")
+        var data = MainListItemData(Date().time, "default", "default", "defoutlList")
         adapter.insert(0, data, elementChanging)
+        listOfListsSelected.add(data)
+
+        (activity as HomeActivity).showMessage("...Creada")
     }
 
     private fun deleteItemAction(listOfSelected: ArrayList<MainListItemData>) {
-        (activity as HomeActivity).showMessage("Borrando...")
+        (activity as HomeActivity).showMessage("Borrando...", true)
 
         if (listOfSelected.isEmpty()) Toast.makeText(activity, "Seleccione lista", Toast.LENGTH_LONG).show()
         else {
@@ -306,6 +315,8 @@ class MainListFragment : Fragment(), RecognitionCallback {
                 adapter.removeByItem(it)
             }
         }
+
+        (activity as HomeActivity).showMessage("...Borrado")
     }
 
     fun getLists(): ArrayList<MainListItemData> {

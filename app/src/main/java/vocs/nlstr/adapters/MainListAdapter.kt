@@ -88,7 +88,7 @@ class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Conte
         notifyItemChanged(position)
     }
 
-    fun updateingInfo(position: Int, text: String) {
+    fun updateInfo(position: Int, text: String) {
         newText = text
         notifyItemChanged(position, elementChanging)
     }

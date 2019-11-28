@@ -42,8 +42,6 @@ class HomeActivity : AppCompatActivity() {
             //TODO: mostrar icono/info/animacion de reconocimiento en marcha
             isListening = !isListening
             hideCommands()
-
-
         }
 
         right_fab.setOnClickListener {
