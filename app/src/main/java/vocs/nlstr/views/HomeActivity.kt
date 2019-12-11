@@ -98,7 +98,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun calculateFadeInOut(msgToShow: String): Long {
-        return ((msgToShow.length * 100) + 300).toLong()
+        return ((msgToShow.length * 300) + 300).toLong()
     }
 
     fun AnimationEffect(view: View, animationEffect: AnimationEffectTypes) {

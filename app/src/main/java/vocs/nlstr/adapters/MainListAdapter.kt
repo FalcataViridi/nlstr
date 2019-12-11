@@ -121,7 +121,7 @@ class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Conte
 
     private fun deactivateUnselectedRows() {
         var index = 0
-        items.forEach { row ->
+        items.forEach { _ ->
             notifyItemChanged(index++)
         }
     }

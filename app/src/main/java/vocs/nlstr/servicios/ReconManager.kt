@@ -143,6 +143,7 @@ class RecognitionManager(private val context: Context
         keyWords.forEach {
             if (textToMatch.toLowerCase() == it.toLowerCase()) return it
         }
+
         return ""
     }
 
