@@ -18,8 +18,8 @@ import java.util.*
 
 class HomeActivity : AppCompatActivity() {
 
+    var isCommandshown: Boolean = false
     var isListening: Boolean = true
-    var isCommand: Boolean = false
     var matches = ArrayList<String>()
     var DEFAULT_HEIGHT = 30
 
@@ -98,7 +98,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun calculateFadeInOut(msgToShow: String): Long {
-        return ((msgToShow.length * 300) + 300).toLong()
+        return ((msgToShow.length * 300) + 500).toLong()
     }
 
     fun AnimationEffect(view: View, animationEffect: AnimationEffectTypes) {
@@ -117,7 +117,7 @@ class HomeActivity : AppCompatActivity() {
                     layoutParams.height = sinkAnim
                     view.layoutParams = layoutParams
                 }
-                anim.duration = 1000
+                anim.duration = 500
                 anim.start()
             }
 
@@ -136,16 +136,24 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun showCommands(commands: ArrayList<String>) {
-
         var commandAdapter = ArrayAdapter<String>(this, R.layout.item_list_command_simple, commands)
+        lv_commList.visibility = View.VISIBLE
         lv_commList.adapter = commandAdapter
 
         AnimationEffect(waveHeader, AnimationEffectTypes.SINK_DOWN)
+
+        (getCurrentFragment() as MainListFragment).onDestroy()
+        (getCurrentFragment() as MainListFragment).onResume()
+        isCommandshown = true
     }
 
     fun hideCommands() {
         AnimationEffect(waveHeader, AnimationEffectTypes.SINK_UP)
         lv_commList.visibility = View.GONE
+
+        (getCurrentFragment() as MainListFragment).onDestroy()
+        (getCurrentFragment() as MainListFragment).onResume()
+        isCommandshown = false
     }
 }
 

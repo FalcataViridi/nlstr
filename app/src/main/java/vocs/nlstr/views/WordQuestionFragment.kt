@@ -144,7 +144,7 @@ class WordQuestionFragment : Fragment(), RecognitionCallback {
         til_up.hint = TranslationKeys.TRADUCIR.key
         til_up.boxStrokeColor = ContextCompat.getColor(context!!, R.color.mtrl_textinput_default_box_stroke_color);
         tv_translated.hint = TranslationKeys.TRADUCIDO.desc
-        reconManager = RecognitionManager(context!!, this, (activity as HomeActivity).isCommand)
+        reconManager = RecognitionManager(context!!, this)
     }
 
     fun startRecognition() {

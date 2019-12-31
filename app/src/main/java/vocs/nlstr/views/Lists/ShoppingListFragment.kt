@@ -145,7 +145,7 @@ class ShoppingListFragment : Fragment(), RecognitionCallback {
     }
 
     private fun initView() {
-        reconManager = RecognitionManager(context!!, this, (activity as HomeActivity).isCommand)
+        reconManager = RecognitionManager(context!!, this)
         listOfLists = getLists()
         rv_shopping_list.layoutManager = LinearLayoutManager(context!!)
 

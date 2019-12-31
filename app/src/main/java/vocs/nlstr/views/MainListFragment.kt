@@ -14,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import kotlinx.android.synthetic.main.fragment_list_main.*
+import vocs.nlstr.MainApplication
 import vocs.nlstr.R
 import vocs.nlstr.adapters.MainListAdapter
 import vocs.nlstr.interfaces.RecognitionCallback
@@ -172,7 +173,7 @@ class MainListFragment : Fragment(), RecognitionCallback {
     }
 
     private fun initView() {
-        reconManager = RecognitionManager(context!!, this, (activity as HomeActivity).isCommand)
+        reconManager = RecognitionManager(context!!, this)
         listOfLists = getLists()
         rv_main_list.layoutManager = LinearLayoutManager(context!!)
 
@@ -228,9 +229,8 @@ class MainListFragment : Fragment(), RecognitionCallback {
 
     fun activateAction(key: String) {
 
-        if (currentSubaction == MainListKeys.COMANDOS.key) {
+        if ((activity as HomeActivity).isCommandshown) {
             (activity as HomeActivity).hideCommands()
-            currentSubaction = ""
         }
 
         when (key) {
@@ -238,7 +238,7 @@ class MainListFragment : Fragment(), RecognitionCallback {
             MainListKeys.SIGUIENTE.key -> nextAction()
             MainListKeys.ACEPTAR.key -> acceptAction()
             MainListKeys.SELECCIONAR.key -> selectAction()
-            MainListKeys.BORRAR.key -> deleteItemAction(listOfListsSelected)
+            MainListKeys.BORRAR.key -> deleteRowAction(listOfListsSelected)
             MainListKeys.COMANDOS.key -> showCommands()
 
             else -> (activity as HomeActivity).showMessage("$key?")
@@ -246,23 +246,51 @@ class MainListFragment : Fragment(), RecognitionCallback {
     }
 
     private fun showCommands() {
-        if (currentSubaction != MainListKeys.COMANDOS.key) {
-            (activity as HomeActivity).showCommands(commandList)
-            currentSubaction = MainListKeys.COMANDOS.key
+
+        when (actions.last()) {
+            MainListKeys.CREAR.key, MainListKeys.SIGUIENTE.key -> {
+                commandList.clear()
+                commandList.add(MainListKeys.CREAR.key)
+                commandList.add(MainListKeys.SIGUIENTE.key)
+                commandList.add(MainListKeys.ACEPTAR.key)
+                commandList.add(MainListKeys.COMANDOS.key)
+                commandList.add(MainListKeys.BORRAR.key)
+            }
+
+            MainListKeys.ACEPTAR.key -> {
+                commandList.clear()
+                commandList.add(MainListKeys.CREAR.key)
+                commandList.add(MainListKeys.COMANDOS.key)
+            }
+
+            MainListKeys.BORRAR.key -> {
+                commandList.clear()
+                commandList.add(MainListKeys.CREAR.key)
+                commandList.add(MainListKeys.SIGUIENTE.key)
+                commandList.add(MainListKeys.ACEPTAR.key)
+                commandList.add(MainListKeys.COMANDOS.key)
+            }
         }
 
+        //Show/hide commands
+        if ((activity as HomeActivity).isCommandshown) {
+            currentSubaction = ""
+            (activity as HomeActivity).hideCommands()
+        } else {
+            currentSubaction = MainListKeys.COMANDOS.key
+            (activity as HomeActivity).showCommands(commandList)
+        }
     }
 
     private fun selectAction() {
         (activity as HomeActivity).showMessage("Seleccionando...", true)
 
-        //TODO borrar este listado tras las pruebas
+        //TODO: borrar este listado tras las pruebas
         addAllListToSelected(listOfLists)
 
         adapter.selectItems(listOfLists)
         actions.add(MainListKeys.SELECCIONAR.key)
     }
-
 
     //TODO: borrar despues de pruebas
     private fun addAllListToSelected(listComplete: ArrayList<MainListItemData>) {
@@ -284,7 +312,7 @@ class MainListFragment : Fragment(), RecognitionCallback {
             MainListKeys.CREAR.key -> {
                 adapter.deactivateView(0)
                 listOfListsSelected.clear()
-
+                actions.add(MainListKeys.SELECCIONAR.key)
             }
         }
     }
@@ -309,7 +337,7 @@ class MainListFragment : Fragment(), RecognitionCallback {
         rv_main_list.scrollToPosition(0)
         when (actions.last()) {
             MainListKeys.CREAR.key -> {
-                deleteItemAction(listOfListsSelected)
+                deleteRowAction(listOfListsSelected)
                 listOfListsSelected.clear()
             }
 
@@ -328,21 +356,17 @@ class MainListFragment : Fragment(), RecognitionCallback {
             }
         }
 
-        var data = MainListItemData(Date().time, "default", "default", "defoutlList")
+        var data = MainListItemData(Date().time, "nombre", "Yokese", "Descripcion")
         adapter.insert(0, data, elementChanging)
+
         listOfListsSelected.add(data)
 
-        commandList.clear()
-
-        commandList.add(MainListKeys.CREAR.key)
-        commandList.add(MainListKeys.SIGUIENTE.key)
-        commandList.add(MainListKeys.ACEPTAR.key)
-        commandList.add(MainListKeys.COMANDOS.key)
 
         (activity as HomeActivity).showMessage("...Creada")
+        adapter.activateElement(0, elementChanging)
     }
 
-    private fun deleteItemAction(listOfSelected: ArrayList<MainListItemData>) {
+    private fun deleteRowAction(listOfSelected: ArrayList<MainListItemData>) {
         (activity as HomeActivity).showMessage("Borrando...", true)
 
         if (listOfSelected.isEmpty()) Toast.makeText(activity, "Seleccione lista", Toast.LENGTH_LONG).show()
@@ -359,7 +383,7 @@ class MainListFragment : Fragment(), RecognitionCallback {
     fun getLists(): ArrayList<MainListItemData> {
         var lists = ArrayList<MainListItemData>()
         lists.add(MainListItemData(Date().time, "Item 1", "List compra", "listado de compra"))
-        lists.add(MainListItemData(Date().time, "Perro canibal", "List TODOs", "List TODO"))
+        lists.add(MainListItemData(Date().time, "Perro 3 4 5 6", "List TODOs", "List TODO"))
         lists.add(MainListItemData(Date().time, "Item 3", "Lista Tareas", "Lista Tareas"))
         lists.add(MainListItemData(Date().time, "Item 4", "Historial", "Historial"))
         lists.add(MainListItemData(Date().time, "Item 5", "Historial", "Historial"))
