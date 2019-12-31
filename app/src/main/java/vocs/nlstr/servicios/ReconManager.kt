@@ -18,7 +18,6 @@ import vocs.nlstr.utils.RecognitionStatus
 
 class RecognitionManager(private val context: Context
                          , private val callback: RecognitionCallback? = null
-                         , private val isCommand: Boolean = false
 ) : RecognitionListener {
 
     var keyWords = ArrayList<String>()
@@ -58,10 +57,12 @@ class RecognitionManager(private val context: Context
 
     fun cancelRecognition() {
         Toast.makeText(context, "Cancelled recognition", Toast.LENGTH_SHORT).show()
+        isActive = false
         speechRecog?.cancel()
     }
 
     fun stopRecognition() {
+        isActive = false
         speechRecog?.stopListening()
     }
 

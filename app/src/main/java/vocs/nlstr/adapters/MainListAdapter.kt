@@ -43,7 +43,6 @@ class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Conte
             }
             onBindViewHolder(holder, position)
 
-
         } else {
             when (payloads[0]) {
                 TITULO.name -> {
@@ -80,7 +79,6 @@ class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Conte
         itemsSelected.add(items[position])
 
         deactivateUnselectedRows()
-
         notifyItemInserted(position)
     }
 
