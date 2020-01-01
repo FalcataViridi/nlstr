@@ -1,7 +1,7 @@
 package vocs.nlstr.adapters
 
 import android.content.Context
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +12,7 @@ import vocs.nlstr.utils.MainListItemAttributes.DESCRIPCION
 import vocs.nlstr.utils.MainListItemAttributes.TITULO
 
 class ShoppingListAdapter(val items: ArrayList<ShoppingListItemData>, val context: Context)
-    : RecyclerView.Adapter<ViewHolderShoppingList>() {
+    : androidx.recyclerview.widget.RecyclerView.Adapter<ViewHolderShoppingList>() {
 
     override fun onBindViewHolder(holder: ViewHolderShoppingList, position: Int) {
         holder?.bindItems(items[position])
@@ -92,7 +92,7 @@ class ShoppingListAdapter(val items: ArrayList<ShoppingListItemData>, val contex
     }
 }
 
-class ViewHolderShoppingList(view: View) : RecyclerView.ViewHolder(view) {
+class ViewHolderShoppingList(view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
 
     fun bindItems(item: ShoppingListItemData) {
         itemView.tv_name.text = item.name

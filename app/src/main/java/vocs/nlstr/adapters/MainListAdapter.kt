@@ -1,7 +1,7 @@
 package vocs.nlstr.adapters
 
 import android.content.Context
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +12,7 @@ import vocs.nlstr.utils.MainListItemAttributes.DESCRIPCION
 import vocs.nlstr.utils.MainListItemAttributes.TITULO
 
 class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Context)
-    : RecyclerView.Adapter<ViewHolderMainList>() {
+    : androidx.recyclerview.widget.RecyclerView.Adapter<ViewHolderMainList>() {
 
     var elementChanging = ""
     var newText = ""
@@ -125,7 +125,7 @@ class MainListAdapter(val items: ArrayList<MainListItemData>, val context: Conte
     }
 }
 
-class ViewHolderMainList(view: View) : RecyclerView.ViewHolder(view) {
+class ViewHolderMainList(view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
 
     fun bindItems(item: MainListItemData) {
         itemView.tv_name.text = item.name
